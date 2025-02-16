@@ -2,6 +2,7 @@ package me.freezy.plugins.papermc.blazesmp.module.manager;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.Getter;
 import me.freezy.plugins.papermc.blazesmp.module.ProtectedBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 /**
  * Manager class for loading and saving protected blocks.
  */
+@Getter
 public class ProtectedBlocks {
     private static final String FILE_PATH = "plugins/BlazeSMP/storage/protected_blocks.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -29,10 +31,6 @@ public class ProtectedBlocks {
 
     public ProtectedBlocks() {
         this.blocks = new ArrayList<>();
-    }
-
-    public List<ProtectedBlock> getBlocks() {
-        return blocks;
     }
 
     /**
