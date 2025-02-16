@@ -1,12 +1,12 @@
 {
   "blocks": [
     {
-      "owner": "",
-      "key": "",
+      "owner": "uuid",
+      "key": "uuid",
       "location": {
-        "x": "",
-        "y": "",
-        "z": ""
+        "x": "blockx",
+        "y": "blocky",
+        "z": "blockz"
       }
     }
   ]
