@@ -5,7 +5,7 @@
 # This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
 
-name: Build and package
+name: build and package
 
 on:
   push:
@@ -18,30 +18,68 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
+    outputs:
+      jarFiles: ${{ steps.jar_list.outputs.jarFiles }}
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: gradle
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
 
-    # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
-    # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
+      # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
 
-    # Schritt 1: Erzeuge den Gradle Wrapper, falls dieser nicht vorhanden ist.
-    - name: Generate Gradle Wrapper
-      run: gradle wrapper --gradle-version 8.9
+      # Schritt 1: Erzeuge den Gradle Wrapper, falls dieser nicht vorhanden ist.
+      - name: Generate Gradle Wrapper
+        run: gradle wrapper --gradle-version 8.9
 
-    # Schritt 2: Stelle sicher, dass das Wrapper-Skript ausführbar ist.
-    - name: Make gradlew executable
-      run: chmod +x gradlew
+      # Schritt 2: Stelle sicher, dass das Wrapper-Skript ausführbar ist.
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
-    # Schritt 3: Führe den Build mit dem Gradle Wrapper durch.
-    - name: Build with Gradle Wrapper
-      run: ./gradlew build
+      # Schritt 3: Führe den Build mit dem Gradle Wrapper durch.
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
+
+      # Speichere das Build-Verzeichnis als Artifakt, damit es im nächsten Job verfügbar ist.
+      - name: Upload build/libs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-libs
+          path: build/libs
+
+      # Ermittle die Liste der erzeugten JAR-Dateien und speichere sie als JSON-Array in den Job-Outputs.
+      - name: Get JAR files list
+        id: jar_list
+        run: |
+          jarFiles=$(find build/libs -maxdepth 1 -name '*.jar' -exec basename {} \; | awk '{printf "\"%s\",", $0}')
+          jarFiles="[${jarFiles%,}]"
+          echo "Found JAR files: $jarFiles"
+          echo "jarFiles=$jarFiles" >> $GITHUB_OUTPUT
+
+  upload:
+    needs: build
+    runs-on: ubuntu-latest
+    # Erstelle für jede gefundene JAR-Datei einen Matrix-Eintrag.
+    strategy:
+      matrix:
+        jar: ${{ fromJson(needs.build.outputs.jarFiles) }}
+    steps:
+      # Lade das build/libs-Verzeichnis aus dem Build-Job herunter.
+      - name: Download build/libs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-libs
+          path: build/libs
+
+      # Lade die einzelne JAR-Datei (mit Originalnamen) als Artifakt hoch.
+      - name: Upload artifact for ${{ matrix.jar }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.jar }}
+          path: build/libs/${{ matrix.jar }}
