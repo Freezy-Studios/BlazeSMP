@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/BlazeSMP.main.iml" filepath="$PROJECT_DIR$/.idea/modules/BlazeSMP.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/me.freezy.plugins.papermc.BlazeSMP.main.iml" filepath="$PROJECT_DIR$/.idea/modules/me.freezy.plugins.papermc.BlazeSMP.main.iml" />
     </modules>
   </component>
 </project>
