@@ -48,7 +48,7 @@ jobs:
 
       # Speichere das Build-Verzeichnis als Artifakt, damit es im nächsten Job verfügbar ist.
       - name: Upload build/libs artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-libs
           path: build/libs
@@ -72,14 +72,14 @@ jobs:
     steps:
       # Lade das build/libs-Verzeichnis aus dem Build-Job herunter.
       - name: Download build/libs artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build-libs
           path: build/libs
 
       # Lade die einzelne JAR-Datei (mit Originalnamen) als Artifakt hoch.
       - name: Upload artifact for ${{ matrix.jar }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.jar }}
           path: build/libs/${{ matrix.jar }}
