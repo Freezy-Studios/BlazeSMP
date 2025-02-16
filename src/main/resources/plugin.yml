@@ -1,6 +1,6 @@
 name: BlazeSMP
 version: '0.0.1-a'
-main: org.example.blazesmp.BlazeSMP
+main: me.freezy.plugins.papermc.blazesmp.BlazeSMP
 api-version: '1.21'
 load: STARTUP
 authors: [ DaTTV, Freezy, EmrageGHC ]

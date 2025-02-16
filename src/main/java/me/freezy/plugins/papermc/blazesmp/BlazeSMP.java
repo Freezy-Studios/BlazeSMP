@@ -1,4 +1,4 @@
-package org.example.blazesmp;
+package me.freezy.plugins.papermc.blazesmp;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

@@ -1,0 +1,22 @@
+{
+  "name": "TTV",
+  "tag": "<red><suffix></red>",
+  "leader": "",
+  "vize": "",
+  "members": [""],
+  "chunks": {
+    "amount": 2,
+    "locations": [
+      {
+        "owner": "",
+        "x": "12",
+        "z": "4"
+      },
+      {
+        "owner": "",
+        "x": "13",
+        "z": "4"
+      }
+    ]
+  }
+}
