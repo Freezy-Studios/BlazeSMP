@@ -1,5 +1,6 @@
 package me.freezy.plugins.papermc.blazesmp.module.manager;
 
+import lombok.Getter;
 import me.freezy.plugins.papermc.blazesmp.module.Clan;
 
 import java.io.File;
@@ -7,23 +8,20 @@ import java.util.LinkedList;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+@Getter
 public class Clans {
     private static final Logger LOGGER = Logger.getLogger("ClanManager");
     private static final String CLAN_STORAGE_PATH = "plugins/BlazeSMP/storage/clans/";
 
+    /**
+     * -- GETTER --
+     *  Returns the list of loaded clans.
+     *
+     */
     private final LinkedList<Clan> clans;
 
     public Clans() {
         this.clans = new LinkedList<>();
-    }
-
-    /**
-     * Returns the list of loaded clans.
-     *
-     * @return LinkedList of Clan objects.
-     */
-    public LinkedList<Clan> getClans() {
-        return clans;
     }
 
     /**
@@ -123,5 +121,50 @@ public class Clans {
                 LOGGER.warning("Failed to delete clan file: " + file.getAbsolutePath());
             }
         }
+    }
+
+    public boolean isLeader(UUID playerUUID) {
+        for (Clan clan : clans) {
+            if (clan.getLeaderUUID().equals(playerUUID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isVice(UUID playerUUID) {
+        for (Clan clan : clans) {
+            if (clan.getViceUUID() != null && clan.getViceUUID().equals(playerUUID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isMember(UUID playerUUID) {
+        for (Clan clan : clans) {
+            if (clan.getMembers().contains(playerUUID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isInClan(UUID playerUUID) {
+        for (Clan clan : clans) {
+            if (clan.getMembers().contains(playerUUID) || clan.getLeaderUUID().equals(playerUUID) || (clan.getViceUUID() != null && clan.getViceUUID().equals(playerUUID))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Clan getClanByMember(UUID playerUUID) {
+        for (Clan clan : clans) {
+            if (clan.getMembers().contains(playerUUID) || clan.getLeaderUUID().equals(playerUUID) || (clan.getViceUUID() != null && clan.getViceUUID().equals(playerUUID))) {
+                return clan;
+            }
+        }
+        return null;
     }
 }

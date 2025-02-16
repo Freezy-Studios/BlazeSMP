@@ -18,13 +18,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+@Getter
 public class Homes {
     private static final String FILE_PATH = "plugins/BlazeSMP/storage/homes.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Logger LOGGER = Logger.getLogger("Homes");
 
     // Mapping of player UUID to their home location
-    @Getter private final LinkedHashMap<UUID, Location> homes;
+    private final LinkedHashMap<UUID, Location> homes;
 
     public Homes() {
         this.homes = new LinkedHashMap<>();

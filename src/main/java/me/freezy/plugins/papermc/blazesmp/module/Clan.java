@@ -187,6 +187,18 @@ public class Clan {
         }
     }
 
+    public boolean isLeader(UUID playerUUID) {
+        return this.leaderUUID.equals(playerUUID);
+    }
+
+    public boolean isVice(UUID playerUUID) {
+        return this.viceUUID != null && this.viceUUID.equals(playerUUID);
+    }
+
+    public boolean isMember(UUID playerUUID) {
+        return this.leaderUUID.equals(playerUUID) || (this.viceUUID != null && this.viceUUID.equals(playerUUID)) || this.members.contains(playerUUID);
+    }
+
     // Helper classes to represent the JSON structure
 
     private static class ClanJson {

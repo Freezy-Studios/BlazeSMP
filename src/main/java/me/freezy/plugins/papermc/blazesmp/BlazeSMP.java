@@ -1,6 +1,7 @@
 package me.freezy.plugins.papermc.blazesmp;
 
 import lombok.Getter;
+import me.freezy.plugins.papermc.blazesmp.command.ClanCommand;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Homes;
 import me.freezy.plugins.papermc.blazesmp.module.manager.ProtectedBlocks;
@@ -46,6 +47,9 @@ public final class BlazeSMP extends JavaPlugin {
     public void onEnable() {
         BlazeSMP.instance=this;
 
+        this.log.info("Registering Commands...");
+        new ClanCommand().register();
+        this.log.info("Registered Commands!");
     }
 
     @Override
