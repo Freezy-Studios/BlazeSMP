@@ -45,3 +45,10 @@ jobs:
     # Schritt 3: Führe den Build mit dem Gradle Wrapper durch.
     - name: Build with Gradle Wrapper
       run: ./gradlew build
+
+    # Schritt 4: Lade die im build/libs generierten JAR-Dateien als Artifakte hoch.
+    - name: Upload JAR Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: jar-files
+        path: build/libs/*.jar
