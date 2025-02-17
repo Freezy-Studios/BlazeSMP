@@ -65,7 +65,7 @@ public class ClanCommand extends SimpleCommand {
                     return true;
                 }
                 String clanName = args[1];
-                String clanTag = args[2];
+                String clanTag = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
                 Component tagComponent = miniMessage().deserialize(clanTag);
 
                 Clan newClan = new Clan(clanName, tagComponent, playerUUID);
@@ -667,7 +667,7 @@ public class ClanCommand extends SimpleCommand {
                     return true;
                 }
                 String whatToModify = args[1].toLowerCase();
-                String newValue = args[2];
+                String newValue = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
 
                 Clan currentClan = clans.getClanByMember(playerUUID);
                 if (currentClan == null) {
