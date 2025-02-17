@@ -5,6 +5,7 @@ import me.freezy.plugins.papermc.blazesmp.module.Clan;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -63,14 +64,28 @@ public class PlayerManager {
                                 "<color:dark_gray>[</color><gradient:#747e80:#828d8f><b>Player</b></gradient><color:dark_gray>]</color> "
                         )
                 );
+        if (clans.isInClan(playerUUID)) {
+            if (clans.isLeader(playerUUID)) {
+                prefix = prefix.append(MiniMessage.miniMessage().deserialize("<color:red>*</color>"));
+            } else if (clans.isVice(playerUUID)) {
+                prefix = prefix.append(MiniMessage.miniMessage().deserialize("<color:light_purple>*</color>"));
+            }
+        }
         team.prefix(prefix);
         Clan clan = clans.getClanByMember(playerUUID);
+        Component suffix;
         if (clan != null) {
-            team.suffix(Component.text(" ").append(clan.getTag()));
+            suffix = (Component.text(" ").append(clan.getTag()));
         } else {
-            team.suffix(Component.empty());
+            suffix = (Component.empty());
         }
+        team.suffix();
         team.addEntity(player);
+        team.addEntry(player.getName());
+
+        Component displayName = prefix.append(Component.text(player.getName())).append(suffix);
+        player.playerListName(displayName);
+        player.displayName(displayName);
     }
 
     private String generateRandomString(int length) {
