@@ -1,5 +1,6 @@
 package me.freezy.plugins.papermc.blazesmp.command;
 
+import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -85,7 +86,8 @@ public class ReportCommand extends SimpleCommand {
     }
 
     private static @NotNull HttpURLConnection getHttpURLConnection(String jsonPayload) throws IOException {
-        String webhookUrl = "https://discord.com/api/webhooks/1341116066067124306/9A0wtk8zFWZwoQZFzSpP4derV2Sv92flq28aiYGIWLOUR2h6tslWH1_RLMWCjLDjBQK1";
+        String webhookUrl = BlazeSMP.getInstance().getConfig().getString("discord-report-webhook");
+        assert webhookUrl != null;
         URL url = new URL(webhookUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
