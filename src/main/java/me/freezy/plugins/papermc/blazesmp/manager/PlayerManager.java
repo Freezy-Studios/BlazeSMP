@@ -46,7 +46,7 @@ public class PlayerManager {
             teamName="zzzm";
         }
         teamName+=generateRandomString(12);
-        scoreboard.getTeams().clear();
+        if (!scoreboard.getTeams().isEmpty()) scoreboard.getTeams().clear();
         Team team = scoreboard.getTeam(teamName);
         if (team == null) {
             team = scoreboard.registerNewTeam(teamName);
@@ -64,6 +64,13 @@ public class PlayerManager {
                         )
                 );
         team.prefix(prefix);
+        Clan clan = clans.getClanByMember(playerUUID);
+        if (clan != null) {
+            team.suffix(Component.text(" ").append(clan.getTag()));
+        } else {
+            team.suffix(Component.empty());
+        }
+        team.addEntity(player);
     }
 
     private String generateRandomString(int length) {
