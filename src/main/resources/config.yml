@@ -1,2 +1,2 @@
-op-prefix: '<color:dark_gray>[</color><gradient:#ffa600:#ffb700><b>Team</b></gradient><color:dark_gray>]</color>'
-player-prefix: '<color:dark_gray>[</color><gradient:#747e80:#828d8f><b>Player</b></gradient><color:dark_gray>]</color>'
+op-prefix: '<color:dark_gray>[</color><gradient:#ffa600:#ffb700><b>Team</b></gradient><color:dark_gray>]</color> '
+player-prefix: '<color:dark_gray>[</color><gradient:#747e80:#828d8f><b>Player</b></gradient><color:dark_gray>]</color> '
