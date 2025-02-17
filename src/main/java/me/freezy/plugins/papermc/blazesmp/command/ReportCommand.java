@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class ReportCommand extends SimpleCommand {
             return true;
         }
 
-        String reason = String.join(" ", args).substring(args[0].length()).trim();
+        String reason = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
         reporter.sendMessage(miniMessage.deserialize(String.format("<green>Du hast</green> <white><b>%s</b></white> <green>erfolgreich wegen</green> <light_purple><i>%s</i></light_purple> <green>gemeldet</green>", reportedPlayer.getName(), reason)));
 
