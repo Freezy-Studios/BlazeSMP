@@ -3,6 +3,7 @@ package me.freezy.plugins.papermc.blazesmp.listener;
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.module.Clan;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -12,12 +13,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.Inventory;
 
 public class PlayerClaimListener implements Listener {
+
+    Component title = MiniMessage.miniMessage().deserialize("<gold>Clan Chunks</gold>");
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Location location = event.getBlock().getLocation();
@@ -119,5 +125,18 @@ public class PlayerClaimListener implements Listener {
                     )
             );
         }
+
+
+
     }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        // Check if the clicked inventory is the one you want to protect
+        if (event.getView().getTitle().equals(title)) {
+            // Cancel the event to prevent item removal
+            event.setCancelled(true);
+        }
+    }
+
 }
