@@ -220,7 +220,7 @@ public class Clans {
 
     public Clan getClanByChunk(Chunk chunk) {
         for (Clan clan : clans) {
-            if (clan.getChunks().contains(chunk)) {
+            if (clan.getChunkOwnerMap().containsKey(chunk)) {
                 return clan;
             }
         }
@@ -228,7 +228,7 @@ public class Clans {
     }
     public boolean isChunkClaimed(Chunk chunk) {
         for (Clan clan : clans) {
-            if (clan.getChunks().contains(chunk)) {
+            if (clan.getChunkOwnerMap().containsKey(chunk)) {
                 return true;
             }
         }

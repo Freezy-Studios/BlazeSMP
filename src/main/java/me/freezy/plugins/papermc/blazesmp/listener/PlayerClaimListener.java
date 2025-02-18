@@ -113,7 +113,7 @@ public class PlayerClaimListener implements Listener {
         if (newClan != null && (!newClan.equals(oldClan))) {
             player.sendActionBar(
                     MiniMessage.miniMessage().deserialize(
-                            "<red>Terretorry of <white>" + newClan.getName() + "</white> - <white>" +
+                            "<red>Territory of <white>" + newClan.getName() + "</white> - <white>" +
                                     Bukkit.getOfflinePlayer(newClan.getChunkOwnerMap().get(toChunk)).getName() +
                                     "!</white></red>"
                     )

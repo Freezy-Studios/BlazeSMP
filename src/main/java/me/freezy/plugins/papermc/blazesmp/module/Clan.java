@@ -32,7 +32,6 @@ public class Clan {
     @Setter private UUID leaderUUID;
     @Setter private UUID viceUUID;
     private final LinkedList<UUID> members;
-    private final LinkedList<Chunk> chunks;
     private final LinkedHashMap<Chunk, UUID> chunkOwnerMap;
     private int chunkAmount;
 
@@ -43,22 +42,20 @@ public class Clan {
         this.leaderUUID = leaderUUID;
         this.viceUUID = null;
         this.members = new LinkedList<>();
-        this.chunks = new LinkedList<>();
         this.chunkOwnerMap = new LinkedHashMap<>();
         this.chunkAmount = 0;
     }
 
     public Clan(UUID clanUUID, String name, Component tag, UUID leaderUUID, UUID viceUUID,
-                LinkedList<UUID> members, LinkedList<Chunk> chunks, LinkedHashMap<Chunk, UUID> chunkOwnerMap) {
+                LinkedList<UUID> members, LinkedHashMap<Chunk, UUID> chunkOwnerMap) {
         this.uuid = clanUUID;
         this.name = name;
         this.tag = tag;
         this.leaderUUID = leaderUUID;
         this.viceUUID = viceUUID;
         this.members = members;
-        this.chunks = chunks;
         this.chunkOwnerMap = chunkOwnerMap;
-        this.chunkAmount = chunks.size();
+        this.chunkAmount = chunkOwnerMap.size();
     }
 
     /**
@@ -94,7 +91,6 @@ public class Clan {
             }
 
             // Process chunks with world information
-            LinkedList<Chunk> chunkList = new LinkedList<>();
             LinkedHashMap<Chunk, UUID> chunkOwnerMap = new LinkedHashMap<>();
             if (jsonClan.chunks != null && jsonClan.chunks.locations != null) {
                 for (LocationJson loc : jsonClan.chunks.locations) {
@@ -106,14 +102,13 @@ public class Clan {
                     int x = Integer.parseInt(loc.x);
                     int z = Integer.parseInt(loc.z);
                     Chunk chunk = world.getChunkAt(x, z);
-                    chunkList.add(chunk);
                     UUID ownerUUID = (loc.owner == null || loc.owner.isEmpty()) ? null : UUID.fromString(loc.owner);
                     chunkOwnerMap.put(chunk, ownerUUID);
                 }
             }
 
-            Clan clan = new Clan(uuid, jsonClan.name, tagComponent, leader, vice, memberUUIDs, chunkList, chunkOwnerMap);
-            clan.chunkAmount = (jsonClan.chunks != null) ? jsonClan.chunks.amount : chunkList.size();
+            Clan clan = new Clan(uuid, jsonClan.name, tagComponent, leader, vice, memberUUIDs, chunkOwnerMap);
+            clan.chunkAmount = (jsonClan.chunks != null) ? jsonClan.chunks.amount : chunkOwnerMap.size();
             return clan;
         } catch (IOException e) {
             LOGGER.severe("Error loading clan: " + e.getMessage());
@@ -136,8 +131,6 @@ public class Clan {
         this.viceUUID = loaded.viceUUID;
         this.members.clear();
         this.members.addAll(loaded.members);
-        this.chunks.clear();
-        this.chunks.addAll(loaded.chunks);
         this.chunkOwnerMap.clear();
         this.chunkOwnerMap.putAll(loaded.chunkOwnerMap);
         this.chunkAmount = loaded.chunkAmount;
@@ -158,7 +151,7 @@ public class Clan {
         jsonClan.chunks = new ChunksJson();
         jsonClan.chunks.amount = this.chunkAmount;
         jsonClan.chunks.locations = new LinkedList<>();
-        for (Chunk chunk : this.chunks) {
+        for (Chunk chunk : this.chunkOwnerMap.keySet()) {
             LocationJson loc = new LocationJson();
             // Assuming the owner mapping may be null
             UUID owner = this.chunkOwnerMap.getOrDefault(chunk, null);

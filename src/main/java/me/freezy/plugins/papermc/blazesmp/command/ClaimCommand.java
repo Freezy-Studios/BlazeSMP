@@ -2,6 +2,7 @@ package me.freezy.plugins.papermc.blazesmp.command;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
+import me.freezy.plugins.papermc.blazesmp.listener.ChunkInventoryManager;
 import me.freezy.plugins.papermc.blazesmp.module.Clan;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -35,29 +36,33 @@ public class ClaimCommand extends SimpleCommand {
             return true;
         } else {
             if (label.equalsIgnoreCase("claim")) {
+                if (args.length != 0 && args[0].equalsIgnoreCase("see")) {
+                    ChunkInventoryManager.openInv(player);
+                    return true;
+                }
                 Clan playerClan = clans.getClanByMember(playerUUID);
                 LinkedHashMap<UUID, LinkedList<Chunk>> existingClaims=clans.getClanChunks(playerClan);
-                if (args[0].equalsIgnoreCase("see")) {
-                    return true;
+                if (!existingClaims.containsKey(playerUUID)) {
+                    existingClaims.put(playerUUID, new LinkedList<>());
                 }
-                if (existingClaims.containsKey(playerUUID)) {
-                    LinkedList<Chunk> playerClaims = existingClaims.get(playerUUID);
-                    int MAX_CLAIMS = 50;
-                    if (playerClaims.size() >= MAX_CLAIMS) {
-                        player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You have reached the maximum amount of claims!"));
+                LinkedList<Chunk> playerClaims = existingClaims.get(playerUUID);
+                int MAX_CLAIMS = 50;
+                if (playerClaims.size() >= MAX_CLAIMS) {
+                    player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You have reached the maximum amount of claims!"));
+                } else {
+                    Chunk playerChunk = player.getLocation().getChunk();
+                    if (clans.isChunkClaimed(playerChunk)) {
+                        player.sendMessage(MiniMessage.miniMessage().deserialize("<red>This chunk is already claimed!"));
                     } else {
-                        Chunk playerChunk = player.getLocation().getChunk();
-                        if (clans.isChunkClaimed(playerChunk)) {
-                            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>This chunk is already claimed!"));
-                        } else {
-                            playerClaims.add(playerChunk);
-                            player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Claimed chunk!"));
-                            existingClaims.put(playerUUID, playerClaims);
-                            clans.setClanChunks(playerClan, existingClaims);
-                        }
+                        playerClaims.add(playerChunk);
+                        player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Claimed chunk!"));
+                        existingClaims.put(playerUUID, playerClaims);
+                        clans.setClanChunks(playerClan, existingClaims);
+                        playerClan.save();
+                        clans.saveAllClans();
                     }
-                    return true;
                 }
+                return true;
             } else if (label.equalsIgnoreCase("unclaim")) {
                 Clan playerClan = clans.getClanByMember(playerUUID);
                 LinkedHashMap<UUID, LinkedList<Chunk>> existingClaims=clans.getClanChunks(playerClan);
@@ -69,6 +74,8 @@ public class ClaimCommand extends SimpleCommand {
                         player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Unclaimed chunk!"));
                         existingClaims.put(playerUUID, playerClaims);
                         clans.setClanChunks(playerClan, existingClaims);
+                        playerClan.save();
+                        clans.saveAllClans();
                     } else {
                         player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You do not own this chunk!"));
                     }

@@ -1,6 +1,7 @@
 package me.freezy.plugins.papermc.blazesmp.listener;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
+import me.freezy.plugins.papermc.blazesmp.module.Clan;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -18,14 +19,21 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ChunkInventoryManager implements Listener {
 
     // Speichert pro Spieler den aktuellen Seitenindex
     private final PaginatedData paginatedData = new PaginatedData();
+
+    public static void openInv(Player player) {
+        Clan clan = BlazeSMP.getInstance().getClans().getClanByMember(player.getUniqueId());
+        if (clan == null) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Du bist in keinem Clan.</red>"));
+            return;
+        }
+        new ChunkInventoryManager().chunksInv(player, clan);
+    }
 
     /**
      * Öffnet das Clan-Chunks-Inventar für den Spieler.
@@ -34,7 +42,7 @@ public class ChunkInventoryManager implements Listener {
      * @param player Der Spieler, der das Inventar öffnet.
      * @param clan   Der Clan, dessen Chunks angezeigt werden sollen.
      */
-    private void chunksInv(Player player, me.freezy.plugins.papermc.blazesmp.module.Clan clan) {
+    private void chunksInv(Player player, Clan clan) {
         // Erstelle eine Liste der Map-Einträge (Chunk -> Besitzer UUID) aus dem Clan
         List<Map.Entry<Chunk, java.util.UUID>> chunkEntries = new ArrayList<>(clan.getChunkOwnerMap().entrySet());
         int itemsPerPage = 45; // Plätze 0-44 für Items, untere Reihe für Navigation
@@ -56,9 +64,9 @@ public class ChunkInventoryManager implements Listener {
      */
     private void openChunksMenu(Player player, List<Map.Entry<Chunk, java.util.UUID>> chunkEntries,
                                 int currentPage, int totalPages, int itemsPerPage,
-                                me.freezy.plugins.papermc.blazesmp.module.Clan clan) {
+                                Clan clan) {
         // Erstelle ein 54-Slot Inventar mit farbigem Titel (Adventure Component)
-        Component title = MiniMessage.miniMessage().deserialize("<gold>Inv Chunks Bust</gold>");
+        Component title = MiniMessage.miniMessage().deserialize("<gold>Clan Chunks</gold>");
         Inventory inv = Bukkit.createInventory(null, 54, title);
 
         // Berechne Start- und Endindex für die aktuelle Seite
@@ -67,9 +75,9 @@ public class ChunkInventoryManager implements Listener {
 
         // Füge für jeden Chunk ein Kopf-Item hinzu
         for (int i = startIndex; i < endIndex; i++) {
-            Map.Entry<Chunk, java.util.UUID> entry = chunkEntries.get(i);
+            Map.Entry<Chunk, UUID> entry = chunkEntries.get(i);
             Chunk chunk = entry.getKey();
-            java.util.UUID ownerUUID = entry.getValue();
+            UUID ownerUUID = entry.getValue();
             OfflinePlayer ownerPlayer = Bukkit.getOfflinePlayer(ownerUUID);
 
             // Erstelle ein Kopf-Item
@@ -176,17 +184,17 @@ public class ChunkInventoryManager implements Listener {
      * Hilfsklasse zur Verwaltung der aktuellen Seite pro Spieler.
      */
     private static class PaginatedData {
-        private final java.util.Map<java.util.UUID, Integer> playerPages = new java.util.HashMap<>();
+        private final Map<UUID, Integer> playerPages = new HashMap<>();
 
-        public void setPage(java.util.UUID playerUUID, int page) {
+        public void setPage(UUID playerUUID, int page) {
             playerPages.put(playerUUID, page);
         }
 
-        public int getPage(java.util.UUID playerUUID) {
-            return playerPages.getOrDefault(playerUUID, 0);
+        public int getPage(UUID playerUUID) {
+            return playerPages.getOrDefault(playerUUID, 1);
         }
 
-        public void removePage(java.util.UUID playerUUID) {
+        public void removePage(UUID playerUUID) {
             playerPages.remove(playerUUID);
         }
     }
