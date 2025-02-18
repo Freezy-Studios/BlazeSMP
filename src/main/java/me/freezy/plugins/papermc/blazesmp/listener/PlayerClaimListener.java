@@ -129,14 +129,4 @@ public class PlayerClaimListener implements Listener {
 
 
     }
-
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        // Check if the clicked inventory is the one you want to protect
-        if (event.getView().getTitle().equals(title)) {
-            // Cancel the event to prevent item removal
-            event.setCancelled(true);
-        }
-    }
-
 }
