@@ -37,6 +37,9 @@ public class ClaimCommand extends SimpleCommand {
             if (label.equalsIgnoreCase("claim")) {
                 Clan playerClan = clans.getClanByMember(playerUUID);
                 LinkedHashMap<UUID, LinkedList<Chunk>> existingClaims=clans.getClanChunks(playerClan);
+                if (args[0].equalsIgnoreCase("see")) {
+                    return true;
+                }
                 if (existingClaims.containsKey(playerUUID)) {
                     LinkedList<Chunk> playerClaims = existingClaims.get(playerUUID);
                     int MAX_CLAIMS = 50;
@@ -44,10 +47,14 @@ public class ClaimCommand extends SimpleCommand {
                         player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You have reached the maximum amount of claims!"));
                     } else {
                         Chunk playerChunk = player.getLocation().getChunk();
-                        playerClaims.add(playerChunk);
-                        player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Claimed chunk!"));
-                        existingClaims.put(playerUUID, playerClaims);
-                        clans.setClanChunks(playerClan, existingClaims);
+                        if (clans.isChunkClaimed(playerChunk)) {
+                            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>This chunk is already claimed!"));
+                        } else {
+                            playerClaims.add(playerChunk);
+                            player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Claimed chunk!"));
+                            existingClaims.put(playerUUID, playerClaims);
+                            clans.setClanChunks(playerClan, existingClaims);
+                        }
                     }
                     return true;
                 }
@@ -70,6 +77,10 @@ public class ClaimCommand extends SimpleCommand {
             }
         }
         return false;
+    }
+
+    private void chunksInv(Player player) {
+
     }
 
     @Override

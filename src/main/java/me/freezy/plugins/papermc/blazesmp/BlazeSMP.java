@@ -4,9 +4,7 @@ import lombok.Getter;
 import me.freezy.plugins.papermc.blazesmp.command.ClaimCommand;
 import me.freezy.plugins.papermc.blazesmp.command.ClanCommand;
 import me.freezy.plugins.papermc.blazesmp.command.ReportCommand;
-import me.freezy.plugins.papermc.blazesmp.listener.PlayerChatListener;
-import me.freezy.plugins.papermc.blazesmp.listener.PlayerCommandBlockerListener;
-import me.freezy.plugins.papermc.blazesmp.listener.PlayerJoinListener;
+import me.freezy.plugins.papermc.blazesmp.listener.*;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Homes;
 import me.freezy.plugins.papermc.blazesmp.module.manager.ProtectedBlocks;
@@ -73,6 +71,8 @@ public final class BlazeSMP extends JavaPlugin {
         pm.registerEvents(new PlayerJoinListener(), this);
         pm.registerEvents(new PlayerChatListener(), this);
         pm.registerEvents(new PlayerCommandBlockerListener(), this);
+        pm.registerEvents(new PlayerClaimListener(), this);
+        pm.registerEvents(new ChunkInventoryManager(), this);
         this.log.info("Registered EventListeners!");
 
         this.log.info("Starting Timer tasks...");

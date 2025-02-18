@@ -226,4 +226,12 @@ public class Clans {
         }
         return null;
     }
+    public boolean isChunkClaimed(Chunk chunk) {
+        for (Clan clan : clans) {
+            if (clan.getChunks().contains(chunk)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
