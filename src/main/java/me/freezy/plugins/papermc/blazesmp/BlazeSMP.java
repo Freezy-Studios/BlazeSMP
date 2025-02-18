@@ -73,6 +73,7 @@ public final class BlazeSMP extends JavaPlugin {
         pm.registerEvents(new PlayerCommandBlockerListener(), this);
         pm.registerEvents(new PlayerClaimListener(), this);
         pm.registerEvents(new ChunkInventoryManager(), this);
+        pm.registerEvents(new PressurePlateListener(), this);
         this.log.info("Registered EventListeners!");
 
         this.log.info("Starting Timer tasks...");

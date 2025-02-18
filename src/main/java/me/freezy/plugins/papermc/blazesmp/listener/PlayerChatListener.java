@@ -17,18 +17,16 @@ public class PlayerChatListener implements Listener {
         Component suffix = Component.empty();
 
         if (team != null) {
-            team.prefix();
             prefix = team.prefix();
-            team.suffix();
             suffix = team.suffix();
         }
 
         Component messageComponent = event.message();
 
         Component chatComponent = Component.empty()
-                .append(prefix)
-                .append(Component.text(player.getName()))
-                .append(suffix)
+                //.append(prefix)
+                .append(player.teamDisplayName())
+                //.append(suffix)
                 .append(Component.text(": "))
                 .append(messageComponent);
 

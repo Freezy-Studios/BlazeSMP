@@ -124,7 +124,7 @@ public class ChunkInventoryManager implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         // Verwende Paper's getView() um den Titel als Component zu erhalten
         Component invTitle = event.getView().title();
-        Component expectedTitle = MiniMessage.miniMessage().deserialize("<gold>Inv Chunks Bust</gold>");
+        Component expectedTitle = MiniMessage.miniMessage().deserialize("<gold>Clan Chunks</gold>");
         // Vergleiche die reinen Texte der Components
         if (!PlainTextComponentSerializer.plainText().serialize(invTitle)
                 .equals(PlainTextComponentSerializer.plainText().serialize(expectedTitle))) {
