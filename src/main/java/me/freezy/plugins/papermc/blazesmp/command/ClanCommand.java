@@ -76,6 +76,27 @@ public class ClanCommand extends SimpleCommand {
                 player.sendMessage(miniMessage().deserialize("<color:green>Clan created successfully!</color>"));
                 return true;
             }
+            case "chat" -> {
+                if (!clans.isInClan(playerUUID)) {
+                    player.sendMessage(miniMessage().deserialize("<color:red>You are not in a clan!</color>"));
+                    return true;
+                }
+                Clan clan = clans.getClanByMember(playerUUID);
+                if (args.length < 2) {
+                    player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan chat <message></color>"));
+                    return true;
+                }
+                String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+                Component chatMessage = miniMessage().deserialize(
+                        String.format("<color:#10abc7>[Clan] %s:</color> <color:#ff8800>%s</color>", player.getName(), message));
+                for (UUID mem : clan.getMembers()) {
+                    Player member = Bukkit.getPlayer(mem);
+                    if (member != null && member.isOnline()) {
+                        member.sendMessage(chatMessage);
+                    }
+                }
+                return true;
+            }
 
             // ========== JOIN ==========
             case "join" -> {
@@ -797,18 +818,18 @@ public class ClanCommand extends SimpleCommand {
         // Erste Ebene der Subcommands
         if (args.length == 1) {
             if (clans.isLeader(playerUUID)) {
-                return Stream.of("info", "invite", "kick", "transfer", "promote",
+                return Stream.of("info", "chat", "invite", "kick", "transfer", "promote",
                                 "demote", "disband", "leave", "accept", "deny",
                                 "modify", "list")
                         .filter(s -> s.startsWith(args[0]))
                         .collect(Collectors.toList());
             } else if (clans.isVice(playerUUID)) {
-                return Stream.of("info", "invite", "kick", "demote",
+                return Stream.of("info", "chat", "invite", "kick", "demote",
                                 "leave", "accept", "deny", "list")
                         .filter(s -> s.startsWith(args[0]))
                         .collect(Collectors.toList());
             } else if (clans.isMember(playerUUID)) {
-                return Stream.of("info", "leave", "list")
+                return Stream.of("info", "chat", "leave", "list")
                         .filter(s -> s.startsWith(args[0]))
                         .collect(Collectors.toList());
             } else {
