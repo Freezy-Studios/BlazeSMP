@@ -5,7 +5,6 @@ import me.freezy.plugins.papermc.blazesmp.module.Clan;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -31,7 +30,7 @@ public class PlayerManager {
     public void setPlayerTeam(Player player) {
         Clans clans = BlazeSMP.getInstance().getClans();
         UUID playerUUID = player.getUniqueId();
-        player.setScoreboard(player.getServer().getScoreboardManager().getNewScoreboard());
+        player.setScoreboard(player.getServer().getScoreboardManager().getMainScoreboard());
         Scoreboard scoreboard = player.getScoreboard();
         String teamName;
         if (clans.isInClan(playerUUID)) {
@@ -46,8 +45,8 @@ public class PlayerManager {
         } else {
             teamName="zzzm";
         }
-        teamName+=generateRandomString(12);
-        if (!scoreboard.getTeams().isEmpty()) scoreboard.getTeams().clear();
+        teamName+=generateRandomString();
+        scoreboard.getTeams().forEach(Team::unregister);
         Team team = scoreboard.getTeam(teamName);
         if (team == null) {
             team = scoreboard.registerNewTeam(teamName);
@@ -88,12 +87,12 @@ public class PlayerManager {
         player.displayName(displayName);
     }
 
-    private String generateRandomString(int length) {
+    private String generateRandomString() {
         String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom RANDOM = new SecureRandom();
-        StringBuilder sb = new StringBuilder(length);
+        StringBuilder sb = new StringBuilder(12);
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < 12; i++) {
             sb.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
         }
 
