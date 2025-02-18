@@ -2,12 +2,16 @@ package me.freezy.plugins.papermc.blazesmp.module.manager;
 
 import lombok.Getter;
 import me.freezy.plugins.papermc.blazesmp.module.Clan;
+import org.bukkit.Chunk;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+@SuppressWarnings("unused")
 @Getter
 public class Clans {
     private static final Logger LOGGER = Logger.getLogger("ClanManager");
@@ -31,7 +35,11 @@ public class Clans {
         File dir = new File(CLAN_STORAGE_PATH);
         if (!dir.exists()) {
             LOGGER.info("Clan storage directory does not exist. Creating directory...");
-            dir.mkdirs();
+            if (!dir.mkdirs()) {
+                LOGGER.warning("Failed to create clan storage directory.");
+            } else {
+                LOGGER.info("Created clan storage directory.");
+            }
             return;
         }
         File[] files = dir.listFiles((file, name) -> name.endsWith(".json"));
@@ -123,6 +131,33 @@ public class Clans {
         }
     }
 
+    public LinkedHashMap<UUID, LinkedList<Chunk>> getClanChunks(Clan clan) {
+        LinkedHashMap<UUID, LinkedList<Chunk>> clanChunks = new LinkedHashMap<>();
+        for (Map.Entry<Chunk, UUID> entry : clan.getChunkOwnerMap().entrySet()) {
+            UUID ownerUUID = entry.getValue();
+            Chunk chunk = entry.getKey();
+            if (!clanChunks.containsKey(ownerUUID)) {
+                clanChunks.put(ownerUUID, new LinkedList<>());
+            }
+            clanChunks.get(ownerUUID).add(chunk);
+        }
+        return clanChunks;
+    }
+
+    public LinkedList<Chunk> getPlayerChunks(UUID playerUUID) {
+        LinkedList<Chunk> playerChunks = new LinkedList<>();
+        for (Clan clan : clans) {
+            if (clan.getChunkOwnerMap().containsValue(playerUUID)) {
+                for (Map.Entry<Chunk, UUID> entry : clan.getChunkOwnerMap().entrySet()) {
+                    if (entry.getValue().equals(playerUUID)) {
+                        playerChunks.add(entry.getKey());
+                    }
+                }
+            }
+        }
+        return playerChunks;
+    }
+
     public boolean isLeader(UUID playerUUID) {
         for (Clan clan : clans) {
             if (clan.getLeaderUUID().equals(playerUUID)) {
@@ -159,9 +194,33 @@ public class Clans {
         return false;
     }
 
+    public boolean isInClan(UUID playerUUID,Clan clan) {
+        return clan.getMembers().contains(playerUUID) || clan.getLeaderUUID().equals(playerUUID) || (clan.getViceUUID() != null && clan.getViceUUID().equals(playerUUID));
+    }
+
     public Clan getClanByMember(UUID playerUUID) {
         for (Clan clan : clans) {
             if (clan.getMembers().contains(playerUUID) || clan.getLeaderUUID().equals(playerUUID) || (clan.getViceUUID() != null && clan.getViceUUID().equals(playerUUID))) {
+                return clan;
+            }
+        }
+        return null;
+    }
+
+    public void setClanChunks(Clan playerClan, LinkedHashMap<UUID, LinkedList<Chunk>> existingClaims) {
+        for (Map.Entry<UUID, LinkedList<Chunk>> entry : existingClaims.entrySet()) {
+            UUID ownerUUID = entry.getKey();
+            LinkedList<Chunk> chunks = entry.getValue();
+            for (Chunk chunk : chunks) {
+                playerClan.getChunkOwnerMap().put(chunk, ownerUUID);
+            }
+        }
+        playerClan.save();
+    }
+
+    public Clan getClanByChunk(Chunk chunk) {
+        for (Clan clan : clans) {
+            if (clan.getChunks().contains(chunk)) {
                 return clan;
             }
         }

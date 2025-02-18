@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
-
+@SuppressWarnings("ALL")
 public abstract class SimpleCommand implements CommandExecutor, TabExecutor {
     protected static Logger logger = Logger.getLogger(BlazeSMP.class.getName());
     protected static CommandMap cmap;
@@ -25,6 +25,10 @@ public abstract class SimpleCommand implements CommandExecutor, TabExecutor {
 
     public SimpleCommand(String command, String usage) {
         this(command, usage, null, null, null);
+    }
+
+    public SimpleCommand(String command, List<String> alias) {
+        this(command, null, null, null, alias);
     }
 
     public SimpleCommand(String command, String usage, String description) {

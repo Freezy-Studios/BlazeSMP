@@ -1,6 +1,7 @@
 package me.freezy.plugins.papermc.blazesmp;
 
 import lombok.Getter;
+import me.freezy.plugins.papermc.blazesmp.command.ClaimCommand;
 import me.freezy.plugins.papermc.blazesmp.command.ClanCommand;
 import me.freezy.plugins.papermc.blazesmp.command.ReportCommand;
 import me.freezy.plugins.papermc.blazesmp.listener.PlayerChatListener;
@@ -64,6 +65,7 @@ public final class BlazeSMP extends JavaPlugin {
         this.log.info("Registering Commands...");
         new ClanCommand().register();
         new ReportCommand().register();
+        new ClaimCommand().register();
         this.log.info("Registered Commands!");
 
         this.log.info("Registering EventListeners...");
