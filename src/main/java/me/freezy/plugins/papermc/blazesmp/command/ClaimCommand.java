@@ -86,10 +86,6 @@ public class ClaimCommand extends SimpleCommand {
         return false;
     }
 
-    private void chunksInv(Player player) {
-
-    }
-
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         return List.of();
