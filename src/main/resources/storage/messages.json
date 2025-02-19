@@ -24,6 +24,10 @@
   "error.modify_invalid": "<red>You can only modify 'name' or 'tag'.</red>",
   "error.unknown_subcommand": "<red>Unknown subcommand. Use /clan for help.</red>",
   "error.clan_disbanded_notify": "<red>Your clan %s has been disbanded by the leader.</red>",
+  "error.no_clans": "<red>No clans found.</red>",
+  "error.not_in_clan": "<red>To claim you need to be in a clan!</red>",
+  "error.chunk_already_claimed": "<red>Chunk is already claimed!</red>",
+  "error.max_claims_reached": "<red>You cannot claim more than 50 chunks!</red>",
 
   "usage.clan_create": "<red>Usage: /clan create <name> <tag></red>",
   "usage.clan_chat": "<red>Usage: /clan chat <message></red>",
@@ -54,6 +58,7 @@
   "success.demoted": "<green>You demoted %s to a normal member.</green>",
   "success.clan_disbanded_leave": "<green>You have disbanded your clan (no other members) and left.</green>",
   "success.left_clan": "<green>You have left the clan %s.</green>",
+  "success.chunk_claimed": "<green>Successfully claimed the chunk!</green>",
 
   "notification.invite": "<yellow>Invite from clan %s.</yellow>",
 
@@ -77,7 +82,6 @@
   "info.members_list_header": "<color:#c70088>Members List:</color>\n",
   "info.member_line": "  <color:#c70088>-</color> <hover:show_text:'Member'><color:#10abc7>Member:</color></hover> <color:#ff8800>%s</color>\n",
   "info.footer": "<color:#c70088>=====================</color>",
-
   "home.error.not_a_player": "<red>You must be a player to use this command!</red>",
   "home.sethome.success": "<green>Home set!</green>",
   "home.delhome.success": "<red>Home removed!</red>",
@@ -104,9 +108,11 @@
   "claim.territory": "<red>Territory of <white>%s</white> - <white>%s</white>!</red>",
 
   "command.blocked": "<red>Unknown or incomplete command, see below for error\n<u>%s</u><i> <--[HERE]</i>",
+
   "player.join": "<gray>[<green>+</green>]</gray> <reset>",
 
   "pressureplate.teleport": "<red>You need to wait 5 seconds to be teleported.</red>",
+
   "teleport.cancelled": "<red>Teleporting cancelled, you moved!</red>",
   "teleport.success": "<green>Teleported!</green>",
   "teleport.countdown": "<yellow>Teleporting to home in %s seconds!</yellow>"
