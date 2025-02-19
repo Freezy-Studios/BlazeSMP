@@ -3,6 +3,7 @@ package me.freezy.plugins.papermc.blazesmp;
 import lombok.Getter;
 import me.freezy.plugins.papermc.blazesmp.command.ClaimCommand;
 import me.freezy.plugins.papermc.blazesmp.command.ClanCommand;
+import me.freezy.plugins.papermc.blazesmp.command.HomeCommand;
 import me.freezy.plugins.papermc.blazesmp.command.ReportCommand;
 import me.freezy.plugins.papermc.blazesmp.listener.*;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
@@ -30,11 +31,6 @@ public final class BlazeSMP extends JavaPlugin {
 
         this.log.info("Loading BlazeSMP...");
 
-        this.log.info("Loading Homes...");
-        this.homes=new Homes();
-        this.homes.load();
-        this.log.info("Loaded Homes!");
-
         this.log.info("Loading ProtectedBlocks...");
         this.protectedBlocks=new ProtectedBlocks();
         this.protectedBlocks.load();
@@ -60,10 +56,16 @@ public final class BlazeSMP extends JavaPlugin {
 
         this.log.info("Enabling BlazeSMP...");
 
+        this.log.info("Loading Homes...");
+        this.homes=new Homes();
+        this.homes.load();
+        this.log.info("Loaded Homes!");
+
         this.log.info("Registering Commands...");
         new ClanCommand().register();
         new ReportCommand().register();
         new ClaimCommand().register();
+        new HomeCommand().register();
         this.log.info("Registered Commands!");
 
         this.log.info("Registering EventListeners...");

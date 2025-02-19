@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.FileReader;
@@ -110,6 +111,24 @@ public class Homes {
         } catch (IOException e) {
             LOGGER.severe("Error saving homes: " + e.getMessage());
         }
+    }
+
+    public boolean hasHome(Player player) {
+        return homes.containsKey(player.getUniqueId());
+    }
+
+    public Location getHome(Player player) {
+        return homes.get(player.getUniqueId());
+    }
+
+    public void setHome(Player player) {
+        homes.put(player.getUniqueId(), player.getLocation());
+        save();
+    }
+
+    public void removeHome(Player player) {
+        homes.remove(player.getUniqueId());
+        save();
     }
 
     /**
