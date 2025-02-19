@@ -1,6 +1,7 @@
 package me.freezy.plugins.papermc.blazesmp.listener;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,8 +40,9 @@ public class PressurePlateListener implements Listener {
                 config.getDouble("spawn-location.y", 200),
                 config.getDouble("spawn-location.z", 0)
         );
-        teleportMessage = config.getString("teleport-message", "§cYou need to wait 5 seconds to be teleported.");
-        teleportDelay = config.getLong("teleport-delay", 100L); // Default to 5 seconds (100 ticks)
+        // Verwende die zentrale Nachricht aus der messages.json
+        teleportMessage = L4M4.get("pressureplate.teleport");
+        teleportDelay = 5*20L; // Default to 5 seconds (100 ticks)
     }
 
     @EventHandler
@@ -68,7 +70,8 @@ public class PressurePlateListener implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if (event.getBlock().getLocation().equals(pressurePlateLocation) && event.getBlock().getType() == Material.POLISHED_BLACKSTONE_PRESSURE_PLATE) {
+        if (event.getBlock().getLocation().equals(pressurePlateLocation)
+                && event.getBlock().getType() == Material.POLISHED_BLACKSTONE_PRESSURE_PLATE) {
             event.setCancelled(true);
         }
     }

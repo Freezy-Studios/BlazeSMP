@@ -1,6 +1,7 @@
 package me.freezy.plugins.papermc.blazesmp.listener;
 
 import com.destroystokyo.paper.event.server.AsyncTabCompleteEvent;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -203,11 +204,10 @@ public class PlayerCommandBlockerListener implements Listener {
         String message = event.getMessage();
         if (isBlocked(message)) {
             event.setCancelled(true);
-            // Zeige den blockierten Befehl als Hinweis (hier der erste Teil der Nachricht)
             String blockedPart = message.split(" ")[0];
-            player.sendMessage(MiniMessage.miniMessage().deserialize(
-                    "<red>Unknown or incomplete command, see below for error\n<u>" + blockedPart + "</u><i> <--[HERE]</i>"
-            ));
+            // Nutze den zentralen Nachrichtentext aus messages.json
+            String msg = String.format(L4M4.get("command.blocked"), blockedPart);
+            player.sendMessage(MiniMessage.miniMessage().deserialize(msg));
         }
     }
 
@@ -218,8 +218,6 @@ public class PlayerCommandBlockerListener implements Listener {
 
         String buffer = event.getBuffer();
         if (isBlocked(buffer)) {
-            // Alle Tab-Vorschläge entfernen und das Event abbrechen,
-            // wenn der eingegebene Befehl blockiert ist.
             event.getCompletions().clear();
             event.setCancelled(true);
         }

@@ -3,10 +3,12 @@ package me.freezy.plugins.papermc.blazesmp;
 import lombok.Getter;
 import me.freezy.plugins.papermc.blazesmp.command.ClaimCommand;
 import me.freezy.plugins.papermc.blazesmp.command.ClanCommand;
+import me.freezy.plugins.papermc.blazesmp.command.HomeCommand;
 import me.freezy.plugins.papermc.blazesmp.command.ReportCommand;
 import me.freezy.plugins.papermc.blazesmp.listener.*;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Homes;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import me.freezy.plugins.papermc.blazesmp.module.manager.ProtectedBlocks;
 import me.freezy.plugins.papermc.blazesmp.tasks.PlayerNameUpdate;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -30,11 +32,6 @@ public final class BlazeSMP extends JavaPlugin {
 
         this.log.info("Loading BlazeSMP...");
 
-        this.log.info("Loading Homes...");
-        this.homes=new Homes();
-        this.homes.load();
-        this.log.info("Loaded Homes!");
-
         this.log.info("Loading ProtectedBlocks...");
         this.protectedBlocks=new ProtectedBlocks();
         this.protectedBlocks.load();
@@ -51,6 +48,10 @@ public final class BlazeSMP extends JavaPlugin {
         saveConfig();
         this.log.info("Loaded config!");
 
+        this.log.info("Loading L4M4...");
+        L4M4.init();
+        this.log.info("Loaded L4M4!");
+
         this.log.info("Loaded BlazeSMP!");
     }
 
@@ -60,10 +61,16 @@ public final class BlazeSMP extends JavaPlugin {
 
         this.log.info("Enabling BlazeSMP...");
 
+        this.log.info("Loading Homes...");
+        this.homes=new Homes();
+        this.homes.load();
+        this.log.info("Loaded Homes!");
+
         this.log.info("Registering Commands...");
         new ClanCommand().register();
         new ReportCommand().register();
         new ClaimCommand().register();
+        new HomeCommand().register();
         this.log.info("Registered Commands!");
 
         this.log.info("Registering EventListeners...");
