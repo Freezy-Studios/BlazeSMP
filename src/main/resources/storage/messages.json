@@ -28,6 +28,7 @@
   "error.not_in_clan": "<red>To claim you need to be in a clan!</red>",
   "error.chunk_already_claimed": "<red>Chunk is already claimed!</red>",
   "error.max_claims_reached": "<red>You cannot claim more than 50 chunks!</red>",
+  "error.chunk_too_close_to_spawn": "<red>Chunk is too close to spawn!</red>",
 
   "usage.clan_create": "<red>Usage: /clan create <name> <tag></red>",
   "usage.clan_chat": "<red>Usage: /clan chat <message></red>",
