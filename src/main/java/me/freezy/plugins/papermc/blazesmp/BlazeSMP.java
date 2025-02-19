@@ -8,6 +8,7 @@ import me.freezy.plugins.papermc.blazesmp.command.ReportCommand;
 import me.freezy.plugins.papermc.blazesmp.listener.*;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Homes;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import me.freezy.plugins.papermc.blazesmp.module.manager.ProtectedBlocks;
 import me.freezy.plugins.papermc.blazesmp.tasks.PlayerNameUpdate;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -46,6 +47,10 @@ public final class BlazeSMP extends JavaPlugin {
         this.configuration= getConfig();
         saveConfig();
         this.log.info("Loaded config!");
+
+        this.log.info("Loading L4M4...");
+        L4M4.init();
+        this.log.info("Loaded L4M4!");
 
         this.log.info("Loaded BlazeSMP!");
     }

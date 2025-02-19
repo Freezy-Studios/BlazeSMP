@@ -2,6 +2,7 @@ package me.freezy.plugins.papermc.blazesmp.command;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -31,24 +32,25 @@ public class ReportCommand extends SimpleCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player reporter)) {
-            sender.sendMessage(miniMessage.deserialize("<b><i><color:#ff002f>Du darfst das nicht</color></i></b>"));
+            sender.sendMessage(miniMessage.deserialize(L4M4.get("report.error.not_a_player")));
             return true;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(miniMessage.deserialize("<i><color:#ff0048>Benutze bitte:</color> <color:#ff00ee>/report</color> <blue><Spieler></blue> <dark_green><Grund></dark_green></i>"));
+            reporter.sendMessage(miniMessage.deserialize(L4M4.get("report.usage")));
             return true;
         }
 
         OfflinePlayer reportedPlayer = Bukkit.getOfflinePlayer(args[0]);
         if (!reportedPlayer.hasPlayedBefore() && !reportedPlayer.isOnline()) {
-            reporter.sendMessage(miniMessage.deserialize("<color:#ff002f>Der Spieler existiert nicht oder war noch nie online!</color>"));
+            reporter.sendMessage(miniMessage.deserialize(L4M4.get("report.error.invalid_player")));
             return true;
         }
 
         String reason = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
-        reporter.sendMessage(miniMessage.deserialize(String.format("<green>Du hast</green> <white><b>%s</b></white> <green>erfolgreich wegen</green> <light_purple><i>%s</i></light_purple> <green>gemeldet</green>", reportedPlayer.getName(), reason)));
+        reporter.sendMessage(miniMessage.deserialize(String.format(L4M4.get("report.success.reported"),
+                reportedPlayer.getName(), reason)));
 
         sendReportToDiscord(reporter.getName(), reportedPlayer.getName(), reason, reporter.getUniqueId());
 
@@ -57,21 +59,20 @@ public class ReportCommand extends SimpleCommand {
 
     private void sendReportToDiscord(String reporter, String reported, String reason, UUID reporterUUID) {
         try {
-            String thumbnailUrl = "http://209.25.141.65:40018/v1/head/getHead/";
+            String thumbnailUrl = L4M4.get("report.discord.thumbnail_url_base");
             String jsonPayload = "{"
-                    + "\"username\": \"ReportBot\","
+                    + "\"username\": \"" + L4M4.get("report.discord.username") + "\","
                     + "\"embeds\": [{"
-                    + "\"title\": \"Neuer Report\","
-                    + "\"color\": 16711680," // Red color
-                    + "\"thumbnail\": {\"url\": \"" + thumbnailUrl+reporterUUID.toString() + "\"}," // Thumbnail
+                    + "\"title\": \"" + L4M4.get("report.discord.title") + "\","
+                    + "\"color\": 16711680,"
+                    + "\"thumbnail\": {\"url\": \"" + thumbnailUrl + reporterUUID.toString() + "\"},"
                     + "\"fields\": ["
-                    + "{\"name\": \"Reporter\", \"value\": \"" + reporter + "\", \"inline\": true},"
-                    + "{\"name\": \"Gemeldeter Spieler\", \"value\": \"" + reported + "\", \"inline\": true},"
-                    + "{\"name\": \"Grund\", \"value\": \"" + reason + "\", \"inline\": false}"
+                    + "{\"name\": \"" + L4M4.get("report.discord.field.reporter") + "\", \"value\": \"" + reporter + "\", \"inline\": true},"
+                    + "{\"name\": \"" + L4M4.get("report.discord.field.reported") + "\", \"value\": \"" + reported + "\", \"inline\": true},"
+                    + "{\"name\": \"" + L4M4.get("report.discord.field.reason") + "\", \"value\": \"" + reason + "\", \"inline\": false}"
                     + "]"
                     + "}]"
                     + "}";
-
             HttpURLConnection connection = getHttpURLConnection(jsonPayload);
 
             int responseCode = connection.getResponseCode();
@@ -82,13 +83,15 @@ public class ReportCommand extends SimpleCommand {
             }
             connection.disconnect();
         } catch (Exception e) {
-            e.printStackTrace();
+            BlazeSMP.getInstance().getLog().error("Failed to send report to Discord: {}", e.getMessage());
         }
     }
 
     private static @NotNull HttpURLConnection getHttpURLConnection(String jsonPayload) throws IOException {
         String webhookUrl = BlazeSMP.getInstance().getConfig().getString("discord-report-webhook");
-        assert webhookUrl != null;
+        if (webhookUrl == null) {
+            throw new IOException("Discord report webhook URL not set in config!");
+        }
         URL url = new URL(webhookUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");

@@ -13,8 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -29,7 +27,9 @@ public class ChunkInventoryManager implements Listener {
     public static void openInv(Player player) {
         Clan clan = BlazeSMP.getInstance().getClans().getClanByMember(player.getUniqueId());
         if (clan == null) {
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Du bist in keinem Clan.</red>"));
+            player.sendMessage(MiniMessage.miniMessage().deserialize(
+                    me.freezy.plugins.papermc.blazesmp.module.manager.L4M4.get("chunk.error.no_clan")
+            ));
             return;
         }
         new ChunkInventoryManager().chunksInv(player, clan);
@@ -44,7 +44,7 @@ public class ChunkInventoryManager implements Listener {
      */
     private void chunksInv(Player player, Clan clan) {
         // Erstelle eine Liste der Map-Einträge (Chunk -> Besitzer UUID) aus dem Clan
-        List<Map.Entry<Chunk, java.util.UUID>> chunkEntries = new ArrayList<>(clan.getChunkOwnerMap().entrySet());
+        List<Map.Entry<Chunk, UUID>> chunkEntries = new ArrayList<>(clan.getChunkOwnerMap().entrySet());
         int itemsPerPage = 45; // Plätze 0-44 für Items, untere Reihe für Navigation
         int totalPages = (int) Math.ceil(chunkEntries.size() / (double) itemsPerPage);
         int currentPage = 0;
@@ -60,13 +60,15 @@ public class ChunkInventoryManager implements Listener {
      * @param currentPage  Aktuelle Seite.
      * @param totalPages   Gesamtzahl der Seiten.
      * @param itemsPerPage Items pro Seite (hier 45).
-     * @param clan         Der Clan, dessen Chunks angezeigt werden.
+     * @param ignoredClan         Der Clan, dessen Chunks angezeigt werden.
      */
-    private void openChunksMenu(Player player, List<Map.Entry<Chunk, java.util.UUID>> chunkEntries,
+    private void openChunksMenu(Player player, List<Map.Entry<Chunk, UUID>> chunkEntries,
                                 int currentPage, int totalPages, int itemsPerPage,
-                                Clan clan) {
+                                Clan ignoredClan) {
         // Erstelle ein 54-Slot Inventar mit farbigem Titel (Adventure Component)
-        Component title = MiniMessage.miniMessage().deserialize("<gold>Clan Chunks</gold>");
+        Component title = MiniMessage.miniMessage().deserialize(
+                me.freezy.plugins.papermc.blazesmp.module.manager.L4M4.get("chunk.title")
+        );
         Inventory inv = Bukkit.createInventory(null, 54, title);
 
         // Berechne Start- und Endindex für die aktuelle Seite
@@ -84,7 +86,6 @@ public class ChunkInventoryManager implements Listener {
             ItemStack head = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
             skullMeta.setOwningPlayer(ownerPlayer);
-            // Titel als Component und dann in reinen Text umwandeln, falls nötig
             Component itemName = MiniMessage.miniMessage().deserialize("<aqua>Chunk [" + chunk.getX() + ", " + chunk.getZ() + "]</aqua>");
             skullMeta.displayName(itemName);
             List<Component> lore = new ArrayList<>();
@@ -103,13 +104,17 @@ public class ChunkInventoryManager implements Listener {
             // Vorherige Seite (Slot 45)
             if (currentPage > 0) {
                 ItemStack prev = new ItemStack(Material.ARROW);
-                prev.editMeta(meta -> meta.displayName(MiniMessage.miniMessage().deserialize("<green>Previous Page</green>")));
+                prev.editMeta(meta -> meta.displayName(MiniMessage.miniMessage().deserialize(
+                        me.freezy.plugins.papermc.blazesmp.module.manager.L4M4.get("chunk.navigation.previous")
+                )));
                 inv.setItem(45, prev);
             }
             // Nächste Seite (Slot 53)
             if (currentPage < totalPages - 1) {
                 ItemStack next = new ItemStack(Material.ARROW);
-                next.editMeta(meta -> meta.displayName(MiniMessage.miniMessage().deserialize("<green>Next Page</green>")));
+                next.editMeta(meta -> meta.displayName(MiniMessage.miniMessage().deserialize(
+                        me.freezy.plugins.papermc.blazesmp.module.manager.L4M4.get("chunk.navigation.next")
+                )));
                 inv.setItem(53, next);
             }
         }
@@ -118,38 +123,33 @@ public class ChunkInventoryManager implements Listener {
         player.openInventory(inv);
     }
 
-    // Listener für Inventarklicks mit Paper-Event (Adventure Components)
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        // Verwende Paper's getView() um den Titel als Component zu erhalten
         Component invTitle = event.getView().title();
-        Component expectedTitle = MiniMessage.miniMessage().deserialize("<gold>Clan Chunks</gold>");
-        // Vergleiche die reinen Texte der Components
+        Component expectedTitle = MiniMessage.miniMessage().deserialize(
+                me.freezy.plugins.papermc.blazesmp.module.manager.L4M4.get("chunk.title")
+        );
         if (!PlainTextComponentSerializer.plainText().serialize(invTitle)
                 .equals(PlainTextComponentSerializer.plainText().serialize(expectedTitle))) {
             return;
         }
-        event.setCancelled(true); // Standardverhalten verhindern
+        event.setCancelled(true);
 
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || !clickedItem.hasItemMeta()) return;
-        // Holen des angezeigten Namens als reiner Text
         Component itemNameComp = clickedItem.getItemMeta().displayName();
-        assert itemNameComp != null;
+        if (itemNameComp == null) return;
         String displayName = PlainTextComponentSerializer.plainText().serialize(itemNameComp);
 
-        // Hole den Clan des Spielers (angenommen, der Spieler ist in einem Clan)
-        me.freezy.plugins.papermc.blazesmp.module.Clan clan = BlazeSMP.getInstance().getClans().getClanByMember(player.getUniqueId());
+        Clan clan = BlazeSMP.getInstance().getClans().getClanByMember(player.getUniqueId());
         if (clan == null) return;
 
-        // Hole alle Einträge (Chunks) des Clans
-        List<Map.Entry<Chunk, java.util.UUID>> chunkEntries = new ArrayList<>(clan.getChunkOwnerMap().entrySet());
+        List<Map.Entry<Chunk, UUID>> chunkEntries = new ArrayList<>(clan.getChunkOwnerMap().entrySet());
         int itemsPerPage = 45;
         int totalPages = (int) Math.ceil(chunkEntries.size() / (double) itemsPerPage);
         int currentPage = paginatedData.getPage(player.getUniqueId());
 
-        // Navigation behandeln
         if (displayName.contains("Previous Page")) {
             if (currentPage > 0) {
                 currentPage--;
@@ -163,26 +163,26 @@ public class ChunkInventoryManager implements Listener {
                 openChunksMenu(player, chunkEntries, currentPage, totalPages, itemsPerPage, clan);
             }
         } else {
-            // Reagiere auf Klicks auf einzelne Chunk-Items
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>Du hast Chunk-Item: " + displayName + " angeklickt.</yellow>"));
+            // Nutze den zentralen Nachrichtentext für Klicks
+            String msg = String.format(
+                    me.freezy.plugins.papermc.blazesmp.module.manager.L4M4.get("chunk.clicked"),
+                    displayName
+            );
+            player.sendMessage(MiniMessage.miniMessage().deserialize(msg));
         }
     }
 
-    // Listener, um die gespeicherten Seiteninformationen aufzuräumen
     @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
+    public void onInventoryClose(org.bukkit.event.inventory.InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player player)) return;
         paginatedData.removePage(player.getUniqueId());
     }
 
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onPlayerQuit(org.bukkit.event.player.PlayerQuitEvent event) {
         paginatedData.removePage(event.getPlayer().getUniqueId());
     }
 
-    /**
-     * Hilfsklasse zur Verwaltung der aktuellen Seite pro Spieler.
-     */
     private static class PaginatedData {
         private final Map<UUID, Integer> playerPages = new HashMap<>();
 

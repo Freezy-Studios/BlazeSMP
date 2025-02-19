@@ -1,6 +1,7 @@
 package me.freezy.plugins.papermc.blazesmp.listener;
 
 import me.freezy.plugins.papermc.blazesmp.manager.PlayerManager;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,6 +14,8 @@ public class PlayerJoinListener implements Listener {
         Player player = event.getPlayer();
         new PlayerManager().setPlayerTeam(player);
 
-        event.joinMessage(MiniMessage.miniMessage().deserialize("<gray>[<green>+</green>]</gray> <reset>").append(player.teamDisplayName()));
+        // Verwende den zentral konfigurierten Join-Text aus der JSON-Datei
+        event.joinMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.join"))
+                .append(player.teamDisplayName()));
     }
 }

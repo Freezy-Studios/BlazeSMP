@@ -3,6 +3,7 @@ package me.freezy.plugins.papermc.blazesmp.command;
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Homes;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import me.freezy.plugins.papermc.blazesmp.tasks.PlayerTeleportHomeTimer;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class HomeCommand extends SimpleCommand {
+
     public HomeCommand() {
         super("home", List.of("sethome", "delhome"));
     }
@@ -21,25 +23,34 @@ public class HomeCommand extends SimpleCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>You must be a player to use this command!</red>"));
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(
+                    L4M4.get("home.error.not_a_player")
+            ));
             return true;
         }
         Homes homes = BlazeSMP.getInstance().getHomes();
 
         if (label.equalsIgnoreCase("sethome")) {
             homes.setHome(player);
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Home set!</green>"));
+            player.sendMessage(MiniMessage.miniMessage().deserialize(
+                    L4M4.get("home.sethome.success")
+            ));
         } else if (label.equalsIgnoreCase("delhome")) {
             homes.removeHome(player);
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Home removed!</red>"));
+            player.sendMessage(MiniMessage.miniMessage().deserialize(
+                    L4M4.get("home.delhome.success")
+            ));
         } else {
             if (homes.hasHome(player)) {
-                // Informiere den Spieler, dass der Teleport-Vorgang gestartet wird
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<yellow>Teleporting to home!</yellow>"));
+                player.sendMessage(MiniMessage.miniMessage().deserialize(
+                        L4M4.get("home.teleport.start")
+                ));
                 new PlayerTeleportHomeTimer(player).runTaskTimer(BlazeSMP.getInstance(), 0, 1);
             } else {
                 homes.setHome(player);
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Home set!</green>"));
+                player.sendMessage(MiniMessage.miniMessage().deserialize(
+                        L4M4.get("home.sethome.success")
+                ));
             }
         }
         return true;

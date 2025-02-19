@@ -4,7 +4,10 @@ import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
 import me.freezy.plugins.papermc.blazesmp.module.Clan;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
+import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -17,12 +20,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
-
 public class ClanCommand extends SimpleCommand {
+
     private final Clans clans;
 
-    // Mapping: Clan -> Liste der Join-Anfragen (Spieler, die einer bestehenden Clan beitreten möchten)
+    // Mapping: Clan -> Liste der Join-Anfragen (Spieler, die einem Clan beitreten möchten)
     private final LinkedHashMap<Clan, LinkedList<UUID>> clanJoins = new LinkedHashMap<>();
     // Mapping: Clan -> Liste der Einladungen (Spieler, die vom Clan eingeladen wurden)
     private final LinkedHashMap<Clan, LinkedList<UUID>> clanInvites = new LinkedHashMap<>();
@@ -39,29 +41,27 @@ public class ClanCommand extends SimpleCommand {
                              @NotNull String label,
                              @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(miniMessage().deserialize("<color:red>You must be a player to execute this command!</color>"));
+            sender.sendMessage(miniMessage().deserialize(L4M4.get("error.not_a_player")));
             return true;
         }
         UUID playerUUID = player.getUniqueId();
 
-        // Keine Subcommands -> zeige Hilfe
+        // Keine Subcommands → Hilfe anzeigen
         if (args.length == 0) {
             sendHelpMessage(player, playerUUID);
             return true;
         }
 
-        // Verarbeitung der Unterbefehle
         String subCommand = args[0].toLowerCase();
         switch (subCommand) {
-
             // ========== CREATE ==========
             case "create" -> {
                 if (clans.isInClan(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>You are already in a clan!</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.already_in_clan")));
                     return true;
                 }
                 if (args.length < 3) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan create <name> <tag></color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_create")));
                     return true;
                 }
                 String clanName = args[1];
@@ -69,30 +69,46 @@ public class ClanCommand extends SimpleCommand {
                 Component tagComponent = miniMessage().deserialize(clanTag);
 
                 Clan newClan = new Clan(clanName, tagComponent, playerUUID);
-                // Clan hinzufügen und speichern
                 clans.addClan(newClan);
                 newClan.save();
-
-                player.sendMessage(miniMessage().deserialize("<color:green>Clan created successfully!</color>"));
+                player.sendMessage(miniMessage().deserialize(L4M4.get("success.clan_created")));
                 return true;
             }
+
+            // ========== CHAT ==========
             case "chat" -> {
                 if (!clans.isInClan(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>You are not in a clan!</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.not_in_clan_chat")));
                     return true;
                 }
                 Clan clan = clans.getClanByMember(playerUUID);
                 if (args.length < 2) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan chat <message></color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_chat")));
                     return true;
                 }
                 String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+                // Verwende den externen Chat-Format-String
                 Component chatMessage = miniMessage().deserialize(
-                        String.format("<color:#10abc7>[Clan] %s:</color> <color:#ff8800>%s</color>", player.getName(), message));
+                        String.format(L4M4.get("chat.format"), player.getName(), message)
+                ).decoration(TextDecoration.ITALIC, true);
+                player.sendMessage(chatMessage);
+                // Sende Nachricht an alle Clanmitglieder (außer Sender)
                 for (UUID mem : clan.getMembers()) {
+                    if (mem.equals(playerUUID)) continue;
                     Player member = Bukkit.getPlayer(mem);
                     if (member != null && member.isOnline()) {
                         member.sendMessage(chatMessage);
+                    }
+                }
+                // Zusätzlich Leader und Vice benachrichtigen
+                Player leader = Bukkit.getPlayer(clan.getLeaderUUID());
+                if (leader != null && leader.isOnline() && !leader.getUniqueId().equals(playerUUID)) {
+                    leader.sendMessage(chatMessage);
+                }
+                if (clan.getViceUUID() != null) {
+                    Player vice = Bukkit.getPlayer(clan.getViceUUID());
+                    if (vice != null && vice.isOnline() && !vice.getUniqueId().equals(playerUUID)) {
+                        vice.sendMessage(chatMessage);
                     }
                 }
                 return true;
@@ -101,41 +117,44 @@ public class ClanCommand extends SimpleCommand {
             // ========== JOIN ==========
             case "join" -> {
                 if (clans.isInClan(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>You are already in a clan!</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.already_in_clan")));
                     return true;
                 }
                 if (args.length < 2) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan join <clanName></color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_join")));
                     return true;
                 }
                 String targetClanName = args[1];
                 Clan targetClan = clans.getClanByName(targetClanName);
                 if (targetClan == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Clan not found!</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
-
                 clanJoins.computeIfAbsent(targetClan, k -> new LinkedList<>());
                 LinkedList<UUID> joinRequests = clanJoins.get(targetClan);
-
                 if (joinRequests.contains(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:yellow>You have already requested to join this clan.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.already_requested")));
                     return true;
                 }
                 joinRequests.add(playerUUID);
                 player.sendMessage(miniMessage().deserialize(
-                        String.format("<color:green>Join request sent to clan %s!</color>", targetClan.getName())));
-
-                // Benachrichtige den Clan-Leader (sofern online)
+                        String.format(L4M4.get("success.join_request_sent"), targetClan.getName())
+                ));
+                // Benachrichtige den Clan-Leader, sofern online
                 Player leader = Bukkit.getPlayer(targetClan.getLeaderUUID());
                 if (leader != null && leader.isOnline()) {
                     String acceptCommand = "/clan accept " + player.getName();
                     String denyCommand = "/clan deny " + player.getName();
-                    Component notifyMsg = miniMessage().deserialize(
-                            String.format("<color:yellow>New join request from %s.</color>\n", player.getName())
-                                    + String.format("<click:run_command:'%s'><color:green>[Accept]</color></click> ", acceptCommand)
-                                    + String.format("<click:run_command:'%s'><color:red>[Deny]</color></click>", denyCommand)
-                    );
+                    String notifyText = String.format(L4M4.get("notification.invite"), targetClan.getName());
+                    Component notifyMsg = miniMessage().deserialize(notifyText)
+                            .append(Component.text(" "))
+                            .append(miniMessage().deserialize(
+                                    "<click:run_command:'" + acceptCommand + "'>" + L4M4.get("button.accept") + "</click>"
+                            ))
+                            .append(Component.text(" "))
+                            .append(miniMessage().deserialize(
+                                    "<click:run_command:'" + denyCommand + "'>" + L4M4.get("button.deny") + "</click>"
+                            ));
                     leader.sendMessage(notifyMsg);
                 }
                 return true;
@@ -144,56 +163,66 @@ public class ClanCommand extends SimpleCommand {
             // ========== INVITE ==========
             case "invite" -> {
                 if (!clans.isLeader(playerUUID) && !clans.isVice(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>You are not authorized to invite players to a clan!</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.not_authorized_invite")));
                     return true;
                 }
                 if (args.length < 2) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan invite <playerName></color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_invite")));
                     return true;
                 }
                 String inviteeName = args[1];
                 Player invitee = Bukkit.getPlayer(inviteeName);
                 if (invitee == null || !invitee.isOnline()) {
-                    player.sendMessage(miniMessage().deserialize(String.format("<color:red>Player %s is not online!</color>", inviteeName)));
+                    player.sendMessage(miniMessage().deserialize(
+                            String.format(L4M4.get("error.player_not_online"), inviteeName)
+                    ));
                     return true;
                 }
                 if (clans.isInClan(invitee.getUniqueId())) {
-                    player.sendMessage(miniMessage().deserialize(String.format("<color:red>%s is already in a clan!</color>", inviteeName)));
+                    player.sendMessage(miniMessage().deserialize(
+                            String.format(L4M4.get("error.player_already_in_clan"), inviteeName)
+                    ));
                     return true;
                 }
                 Clan inviterClan = clans.getClanByMember(playerUUID);
                 if (inviterClan == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Error: Your clan could not be found.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
                 clanInvites.computeIfAbsent(inviterClan, k -> new LinkedList<>());
                 LinkedList<UUID> inviteList = clanInvites.get(inviterClan);
-
                 if (inviteList.contains(invitee.getUniqueId())) {
-                    player.sendMessage(miniMessage().deserialize(String.format("<color:yellow>Player %s has already been invited!</color>", inviteeName)));
+                    player.sendMessage(miniMessage().deserialize(
+                            String.format(L4M4.get("error.already_requested"), inviteeName)
+                    ));
                     return true;
                 }
                 inviteList.add(invitee.getUniqueId());
-                player.sendMessage(miniMessage().deserialize(String.format("<color:green>Invite sent to %s.</color>", inviteeName)));
-
+                player.sendMessage(miniMessage().deserialize(
+                        String.format(L4M4.get("success.invite_sent"), inviteeName)
+                ));
                 // Benachrichtige den Eingeladenen
                 String acceptCmd = "/clan accept " + inviterClan.getName();
                 String denyCmd = "/clan deny " + inviterClan.getName();
-                Component inviteNotify = miniMessage().deserialize(
-                        String.format("<color:yellow>Invite from clan %s.</color>\n", inviterClan.getName())
-                                + String.format("<click:run_command:'%s'><color:green>[Accept]</color></click> ", acceptCmd)
-                                + String.format("<click:run_command:'%s'><color:red>[Deny]</color></click>", denyCmd)
-                );
+                String inviteNotifyText = String.format(L4M4.get("notification.invite"), inviterClan.getName());
+                Component inviteNotify = miniMessage().deserialize(inviteNotifyText)
+                        .append(Component.text("\n"))
+                        .append(miniMessage().deserialize(
+                                "<click:run_command:'" + acceptCmd + "'>" + L4M4.get("button.accept") + "</click>"
+                        ))
+                        .append(Component.text(" "))
+                        .append(miniMessage().deserialize(
+                                "<click:run_command:'" + denyCmd + "'>" + L4M4.get("button.deny") + "</click>"
+                        ));
                 invitee.sendMessage(inviteNotify);
                 return true;
             }
 
             // ========== ACCEPT ==========
             case "accept" -> {
-                // 1) Spieler ist noch in keinem Clan -> Einladung annehmen
                 if (!clans.isInClan(playerUUID)) {
                     if (args.length < 2) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan accept <clanName></color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_accept")));
                         return true;
                     }
                     String clanNameForInvite = args[1];
@@ -206,57 +235,60 @@ public class ClanCommand extends SimpleCommand {
                         }
                     }
                     if (invitedClan == null) {
-                        player.sendMessage(miniMessage().deserialize(String.format("<color:red>No invite found from clan %s.</color>", clanNameForInvite)));
+                        player.sendMessage(miniMessage().deserialize(
+                                String.format(L4M4.get("error.invite_not_found"), clanNameForInvite)
+                        ));
                         return true;
                     }
                     invitedClan.getMembers().add(playerUUID);
                     clanInvites.get(invitedClan).remove(playerUUID);
-
                     player.sendMessage(miniMessage().deserialize(
-                            String.format("<color:green>You have joined the clan %s!</color>", invitedClan.getName())));
-
+                            String.format(L4M4.get("success.join_clan"), invitedClan.getName())
+                    ));
                     Player leader = Bukkit.getPlayer(invitedClan.getLeaderUUID());
                     if (leader != null && leader.isOnline()) {
                         leader.sendMessage(miniMessage().deserialize(
-                                String.format("<color:green>%s has accepted the clan invite.</color>", player.getName())));
+                                String.format(L4M4.get("success.invite_accepted_notify"), player.getName())
+                        ));
                     }
                     invitedClan.save();
                 } else {
-                    // 2) Spieler ist bereits in einem Clan -> Beitrittsanfrage annehmen (Leader/Vice)
                     if (!clans.isLeader(playerUUID) && !clans.isVice(playerUUID)) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>You are not authorized to accept join requests.</color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("error.not_authorized_accept")));
                         return true;
                     }
                     if (args.length < 2) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan accept <playerName></color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_accept_request")));
                         return true;
                     }
                     String joinRequesterName = args[1];
                     Clan currentClan = clans.getClanByMember(playerUUID);
                     if (currentClan == null) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>Error: Your clan could not be found.</color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                         return true;
                     }
                     LinkedList<UUID> joinReqs = clanJoins.get(currentClan);
                     if (joinReqs == null || joinReqs.isEmpty()) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>No join requests available.</color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("error.no_join_requests")));
                         return true;
                     }
                     UUID requesterUUID = getUuidByName(joinReqs, joinRequesterName);
                     if (requesterUUID == null) {
-                        player.sendMessage(miniMessage().deserialize(String.format("<color:red>No join request found from %s.</color>", joinRequesterName)));
+                        player.sendMessage(miniMessage().deserialize(
+                                String.format(L4M4.get("error.join_request_not_found"), joinRequesterName)
+                        ));
                         return true;
                     }
                     currentClan.getMembers().add(requesterUUID);
                     joinReqs.remove(requesterUUID);
-
                     player.sendMessage(miniMessage().deserialize(
-                            String.format("<color:green>You have accepted %s's join request.</color>", joinRequesterName)));
-
+                            String.format(L4M4.get("success.join_request_accepted"), joinRequesterName)
+                    ));
                     Player requester = Bukkit.getPlayer(requesterUUID);
                     if (requester != null && requester.isOnline()) {
                         requester.sendMessage(miniMessage().deserialize(
-                                String.format("<color:green>Your join request for clan %s has been accepted.</color>", currentClan.getName())));
+                                String.format(L4M4.get("success.join_request_accepted_notify"), currentClan.getName())
+                        ));
                     }
                     currentClan.save();
                 }
@@ -265,10 +297,9 @@ public class ClanCommand extends SimpleCommand {
 
             // ========== DENY ==========
             case "deny" -> {
-                // 1) Spieler ist noch in keinem Clan -> Einladung ablehnen
                 if (!clans.isInClan(playerUUID)) {
                     if (args.length < 2) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan deny <clanName></color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_deny_invite")));
                         return true;
                     }
                     String clanNameForInvite = args[1];
@@ -281,53 +312,57 @@ public class ClanCommand extends SimpleCommand {
                         }
                     }
                     if (invitedClan == null) {
-                        player.sendMessage(miniMessage().deserialize(String.format("<color:red>No invite found from clan %s.</color>", clanNameForInvite)));
+                        player.sendMessage(miniMessage().deserialize(
+                                String.format(L4M4.get("error.invite_not_found"), clanNameForInvite)
+                        ));
                         return true;
                     }
                     clanInvites.get(invitedClan).remove(playerUUID);
                     player.sendMessage(miniMessage().deserialize(
-                            String.format("<color:red>You have declined the clan invite from %s.</color>", invitedClan.getName())));
-
+                            String.format(L4M4.get("error.invite_declined"), invitedClan.getName())
+                    ));
                     Player leader = Bukkit.getPlayer(invitedClan.getLeaderUUID());
                     if (leader != null && leader.isOnline()) {
                         leader.sendMessage(miniMessage().deserialize(
-                                String.format("<color:red>%s has declined the clan invite.</color>", player.getName())));
+                                String.format(L4M4.get("error.invite_declined_notify"), player.getName())
+                        ));
                     }
                 } else {
-                    // 2) Spieler ist in einem Clan -> Beitrittsanfrage ablehnen (Leader/Vice)
                     if (!clans.isLeader(playerUUID) && !clans.isVice(playerUUID)) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>You are not authorized to deny join requests.</color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("error.not_authorized_deny")));
                         return true;
                     }
                     if (args.length < 2) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan deny <playerName></color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_deny_request")));
                         return true;
                     }
                     String joinRequesterName = args[1];
                     Clan currentClan = clans.getClanByMember(playerUUID);
                     if (currentClan == null) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>Error: Your clan could not be found.</color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                         return true;
                     }
                     LinkedList<UUID> joinReqs = clanJoins.get(currentClan);
                     if (joinReqs == null || joinReqs.isEmpty()) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>No join requests available.</color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("error.no_join_requests")));
                         return true;
                     }
                     UUID requesterUUID = getUuidByName(joinReqs, joinRequesterName);
                     if (requesterUUID == null) {
-                        player.sendMessage(miniMessage().deserialize(String.format("<color:red>No join request found from %s.</color>", joinRequesterName)));
+                        player.sendMessage(miniMessage().deserialize(
+                                String.format(L4M4.get("error.join_request_not_found"), joinRequesterName)
+                        ));
                         return true;
                     }
                     joinReqs.remove(requesterUUID);
-
                     player.sendMessage(miniMessage().deserialize(
-                            String.format("<color:red>You have denied %s's join request.</color>", joinRequesterName)));
-
+                            String.format(L4M4.get("error.join_request_denied"), joinRequesterName)
+                    ));
                     Player requester = Bukkit.getPlayer(requesterUUID);
                     if (requester != null && requester.isOnline()) {
                         requester.sendMessage(miniMessage().deserialize(
-                                String.format("<color:red>Your join request for clan %s has been denied.</color>", currentClan.getName())));
+                                String.format(L4M4.get("error.join_request_denied_notify"), currentClan.getName())
+                        ));
                     }
                 }
                 return true;
@@ -335,24 +370,34 @@ public class ClanCommand extends SimpleCommand {
 
             // ========== LIST ==========
             case "list" -> {
-                // Zeige eine Liste aller existierenden Clans an
-                sendClanList(player);
+                Collection<Clan> allClans = clans.getClans();
+                if (allClans.isEmpty()) {
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.no_clans")));
+                    return true;
+                }
+                Component clanListComponent = miniMessage().deserialize("<color:#c70088>=== List of clans ===</color>\n");
+                for (Clan clan : allClans) {
+                    clanListComponent = clanListComponent.append(
+                            miniMessage().deserialize(String.format("  <color:#c70088>-</color> <color:#ff8800>%s</color>\n", clan.getName()))
+                    );
+                }
+                clanListComponent = clanListComponent.append(miniMessage().deserialize("<color:#c70088>=====================</color>"));
+                player.sendMessage(clanListComponent);
                 return true;
             }
 
             // ========== INFO ==========
             case "info" -> {
                 if (!clans.isInClan(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>You are not in a clan!</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.not_in_clan_info")));
                     return true;
                 }
                 Clan clan = clans.getClanByMember(playerUUID);
                 if (clan == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Could not find your clan.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found_info")));
                     return true;
                 }
 
-                // Sammle die Daten
                 UUID leaderUUID = clan.getLeaderUUID();
                 UUID viceUUID = clan.getViceUUID();
                 List<UUID> members = clan.getMembers();
@@ -366,64 +411,24 @@ public class ClanCommand extends SimpleCommand {
                     viceName = (viceOffline.getName() != null) ? viceOffline.getName() : viceUUID.toString();
                 }
 
-                // Wir bauen den Info-Text in mehreren Component-Teilen auf
-                Component infoComponent = Component.empty();
+                // Baue den Info-Text mithilfe der externen Message-Templates
+                Component infoComponent = Component.empty()
+                        .append(miniMessage().deserialize(L4M4.get("info.header")))
+                        .append(miniMessage().deserialize(String.format(L4M4.get("info.uuid"), clan.getUuid())))
+                        .append(miniMessage().deserialize(String.format(L4M4.get("info.name"), clan.getName())))
+                        .append(miniMessage().deserialize(String.format(L4M4.get("info.leader"), leaderName)))
+                        .append(miniMessage().deserialize(String.format(L4M4.get("info.vice"), viceName)))
+                        .append(miniMessage().deserialize(String.format(L4M4.get("info.members_count"), members.size())))
+                        .append(miniMessage().deserialize(String.format(L4M4.get("info.tag"), miniMessage().serialize(clan.getTag()))))
+                        .append(miniMessage().deserialize(L4M4.get("info.members_list_header")));
 
-                // Header
-                Component l1 = miniMessage().deserialize("<color:#c70088>=== Clan info ===</color>\n");
-                // ID
-                Component l2 = miniMessage().deserialize(String.format(
-                        "  <color:#c70088>-</color> <hover:show_text:'Unique identifier'><color:#10abc7>ID:</color></hover> <color:#ff8800>%s</color>\n",
-                        clan.getUuid()
-                ));
-                // Name
-                Component l3 = miniMessage().deserialize(String.format(
-                        "  <color:#c70088>-</color> <hover:show_text:'Name'><color:#10abc7>Name:</color></hover> <color:#ff8800>%s</color>\n",
-                        clan.getName()
-                ));
-                // Leader
-                Component l4 = miniMessage().deserialize(String.format(
-                        "  <color:#c70088>-</color> <hover:show_text:'Leader'><color:#10abc7>Leader:</color></hover> <color:#ff8800>%s</color>\n",
-                        leaderName
-                ));
-                // Vice
-                Component l5 = miniMessage().deserialize(String.format(
-                        "  <color:#c70088>-</color> <hover:show_text:'Vice Leader'><color:#10abc7>Vice Leader:</color></hover> <color:#ff8800>%s</color>\n",
-                        viceName
-                ));
-                // Member Count
-                Component l6 = miniMessage().deserialize(String.format(
-                        "  <color:#c70088>-</color> <hover:show_text:'Member count'><color:#10abc7>Members:</color></hover> <color:#ff8800>%d</color>\n",
-                        members.size()
-                ));
-                // Tag
-                Component l8 = miniMessage().deserialize(String.format(
-                        "  <color:#c70088>-</color> <hover:show_text:'Clan tag'><color:#10abc7>Tag:</color></hover> <color:#ff8800>%s</color>\n",
-                        miniMessage().serialize(clan.getTag())
-                ));
-                // Member-Liste
-                Component l7 = miniMessage().deserialize("<color:#c70088>Members List:</color>\n");
-
-                infoComponent = infoComponent
-                        .append(l1).append(l2).append(l3)
-                        .append(l4).append(l5).append(l6)
-                        .append(l8).append(l7);
-
-                // Detaillierte Auflistung der Mitglieder
                 for (UUID mem : members) {
                     OfflinePlayer off = Bukkit.getOfflinePlayer(mem);
                     String name = off.getName() != null ? off.getName() : mem.toString();
-                    Component memberLine = miniMessage().deserialize(String.format(
-                            "  <color:#c70088>-</color> <hover:show_text:'Member'><color:#10abc7>Member:</color></hover> <color:#ff8800>%s</color>\n",
-                            name
-                    ));
+                    Component memberLine = miniMessage().deserialize(String.format(L4M4.get("info.member_line"), name));
                     infoComponent = infoComponent.append(memberLine);
                 }
-
-                // Abschlusslinie
-                Component endLine = miniMessage().deserialize("<color:#c70088>=====================</color>");
-                infoComponent = infoComponent.append(endLine);
-
+                infoComponent = infoComponent.append(miniMessage().deserialize(L4M4.get("info.footer")));
                 player.sendMessage(infoComponent);
                 return true;
             }
@@ -431,49 +436,44 @@ public class ClanCommand extends SimpleCommand {
             // ========== KICK ==========
             case "kick" -> {
                 if (!clans.isLeader(playerUUID) && !clans.isVice(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>You are not authorized to kick players.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.not_authorized_kick")));
                     return true;
                 }
                 if (args.length < 2) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan kick <playerName></color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_kick")));
                     return true;
                 }
                 Clan currentClan = clans.getClanByMember(playerUUID);
                 if (currentClan == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Could not find your clan.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
                 String targetName = args[1];
                 OfflinePlayer targetOffline = Bukkit.getOfflinePlayer(targetName);
-
                 if (targetOffline.getName() == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>No such player found.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.player_not_found")));
                     return true;
                 }
                 UUID targetUUID = targetOffline.getUniqueId();
-
-                // Check: Ist der Spieler im Clan?
                 if (!currentClan.isMember(targetUUID)) {
-                    player.sendMessage(miniMessage().deserialize(String.format("<color:red>%s is not in your clan!</color>", targetName)));
+                    player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("error.player_not_in_clan"), targetName)));
                     return true;
                 }
-                // Vice kann keinen Leader kicken
                 if (clans.isVice(playerUUID) && currentClan.isLeader(targetUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>You cannot kick the clan leader!</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.cannot_kick_leader")));
                     return true;
                 }
-
-                // Vice entfernen, falls der Gekickte Vice war
                 if (currentClan.isVice(targetUUID)) {
                     currentClan.setViceUUID(null);
                 }
                 currentClan.getMembers().remove(targetUUID);
                 currentClan.save();
-
-                player.sendMessage(miniMessage().deserialize(String.format("<color:green>You kicked %s from the clan.</color>", targetName)));
+                player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("success.player_kicked"), targetName)));
                 if (targetOffline.isOnline()) {
                     Player targetOnline = (Player) targetOffline;
-                    targetOnline.sendMessage(miniMessage().deserialize(String.format("<color:red>You have been kicked from the clan %s.</color>", currentClan.getName())));
+                    targetOnline.sendMessage(miniMessage().deserialize(
+                            String.format(L4M4.get("error.player_kicked_notify"), currentClan.getName())
+                    ));
                 }
                 return true;
             }
@@ -481,47 +481,42 @@ public class ClanCommand extends SimpleCommand {
             // ========== TRANSFER ==========
             case "transfer" -> {
                 if (!clans.isLeader(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Only the clan leader can transfer leadership.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.only_leader_transfer")));
                     return true;
                 }
                 if (args.length < 2) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan transfer <playerName></color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_transfer")));
                     return true;
                 }
                 Clan currentClan = clans.getClanByMember(playerUUID);
                 if (currentClan == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Could not find your clan.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
                 String newLeaderName = args[1];
                 OfflinePlayer newLeaderOffline = Bukkit.getOfflinePlayer(newLeaderName);
                 if (newLeaderOffline.getName() == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>No such player found.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.player_not_found")));
                     return true;
                 }
                 UUID newLeaderUUID = newLeaderOffline.getUniqueId();
-
                 if (!currentClan.isMember(newLeaderUUID)) {
-                    player.sendMessage(miniMessage().deserialize(String.format("<color:red>%s is not in your clan!</color>", newLeaderName)));
+                    player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("error.player_not_in_clan"), newLeaderName)));
                     return true;
                 }
-
-                // Füge den alten Leader zur Members-Liste hinzu (falls nicht enthalten)
                 if (!currentClan.getMembers().contains(playerUUID)) {
                     currentClan.getMembers().add(playerUUID);
                 }
-                // Setze neuen Leader
                 currentClan.setLeaderUUID(newLeaderUUID);
-                // Falls Vice, entfernen
                 if (currentClan.isVice(newLeaderUUID)) {
                     currentClan.setViceUUID(null);
                 }
                 currentClan.save();
-
-                player.sendMessage(miniMessage().deserialize(String.format("<color:green>You transferred leadership to %s.</color>", newLeaderName)));
+                player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("success.leadership_transferred"), newLeaderName)));
                 if (newLeaderOffline.isOnline()) {
                     ((Player) newLeaderOffline).sendMessage(miniMessage().deserialize(
-                            String.format("<color:green>You are now the leader of the clan %s.</color>", currentClan.getName())));
+                            String.format(L4M4.get("success.new_leader_notify"), currentClan.getName())
+                    ));
                 }
                 return true;
             }
@@ -529,39 +524,41 @@ public class ClanCommand extends SimpleCommand {
             // ========== PROMOTE ==========
             case "promote" -> {
                 if (!clans.isLeader(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Only the clan leader can promote a member.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.only_leader_promote")));
                     return true;
                 }
                 if (args.length < 2) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan promote <playerName></color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_promote")));
                     return true;
                 }
                 Clan currentClan = clans.getClanByMember(playerUUID);
                 if (currentClan == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Could not find your clan.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
                 String promoteName = args[1];
                 OfflinePlayer promoteOffline = Bukkit.getOfflinePlayer(promoteName);
-
                 if (promoteOffline.getName() == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>No such player found.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.player_not_found")));
                     return true;
                 }
                 UUID promoteUUID = promoteOffline.getUniqueId();
-
                 if (!currentClan.isMember(promoteUUID)) {
-                    player.sendMessage(miniMessage().deserialize(String.format("<color:red>%s is not in your clan!</color>", promoteName)));
+                    player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("error.player_not_in_clan"), promoteName)));
                     return true;
                 }
-                // Vice setzen
+                if (currentClan.isVice(promoteUUID)) {
+                    player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("error.already_vice"), promoteName)));
+                    return true;
+                }
+                currentClan.getMembers().remove(promoteUUID);
                 currentClan.setViceUUID(promoteUUID);
                 currentClan.save();
-
-                player.sendMessage(miniMessage().deserialize(String.format("<color:green>You promoted %s to vice leader.</color>", promoteName)));
+                player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("success.promoted_to_vice"), promoteName)));
                 if (promoteOffline.isOnline()) {
                     ((Player) promoteOffline).sendMessage(miniMessage().deserialize(
-                            String.format("<color:green>You have been promoted to vice leader of clan %s.</color>", currentClan.getName())));
+                            String.format(L4M4.get("success.promoted_notify"), currentClan.getName())
+                    ));
                 }
                 return true;
             }
@@ -569,48 +566,43 @@ public class ClanCommand extends SimpleCommand {
             // ========== DEMOTE ==========
             case "demote" -> {
                 if (!clans.isLeader(playerUUID) && !clans.isVice(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>You are not authorized to demote anyone.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.not_authorized_demote")));
                     return true;
                 }
                 if (args.length < 2) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan demote <playerName></color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_demote")));
                     return true;
                 }
                 Clan currentClan = clans.getClanByMember(playerUUID);
                 if (currentClan == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Could not find your clan.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
                 String demoteName = args[1];
                 OfflinePlayer demoteOffline = Bukkit.getOfflinePlayer(demoteName);
-
                 if (demoteOffline.getName() == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>No such player found.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.player_not_found")));
                     return true;
                 }
                 UUID demoteUUID = demoteOffline.getUniqueId();
-
-                // Check, ob der Spieler Vice ist
                 if (!currentClan.isVice(demoteUUID)) {
-                    player.sendMessage(miniMessage().deserialize(String.format("<color:red>%s is not the vice leader!</color>", demoteName)));
+                    player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("error.not_vice"), demoteName)));
                     return true;
                 }
-                // Vice kann nur sich selbst demoten (oder Leader kann Vice demoten)
                 if (!clans.isLeader(playerUUID) && !playerUUID.equals(demoteUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>You can only demote yourself!</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.only_self_demote")));
                     return true;
                 }
                 currentClan.setViceUUID(null);
-                // Sicherstellen, dass der Spieler in der Memberliste bleibt
                 if (!currentClan.getMembers().contains(demoteUUID)) {
                     currentClan.getMembers().add(demoteUUID);
                 }
                 currentClan.save();
-
-                player.sendMessage(miniMessage().deserialize(String.format("<color:green>You demoted %s to a normal member.</color>", demoteName)));
+                player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("success.demoted"), demoteName)));
                 if (demoteOffline.isOnline()) {
                     ((Player) demoteOffline).sendMessage(miniMessage().deserialize(
-                            String.format("<color:red>You have been demoted to a normal member of clan %s.</color>", currentClan.getName())));
+                            String.format(L4M4.get("error.demoted_notify"), currentClan.getName())
+                    ));
                 }
                 return true;
             }
@@ -618,192 +610,101 @@ public class ClanCommand extends SimpleCommand {
             // ========== DISBAND ==========
             case "disband" -> {
                 if (!clans.isLeader(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Only the clan leader can disband the clan.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.only_leader_disband")));
                     return true;
                 }
                 Clan currentClan = clans.getClanByMember(playerUUID);
                 if (currentClan == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Could not find your clan.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
-
-                // Benachrichtige alle Mitglieder
                 for (UUID memberUUID : currentClan.getMembers()) {
                     Player memberOnline = Bukkit.getPlayer(memberUUID);
                     if (memberOnline != null && memberOnline.isOnline()) {
                         memberOnline.sendMessage(miniMessage().deserialize(
-                                String.format("<color:red>Your clan %s has been disbanded by the leader.</color>", currentClan.getName())));
+                                String.format(L4M4.get("error.clan_disbanded_notify"), currentClan.getName())
+                        ));
                     }
                 }
-                // Clan entfernen
                 clans.removeClan(currentClan);
-                player.sendMessage(miniMessage().deserialize("<color:green>You have disbanded your clan.</color>"));
+                player.sendMessage(miniMessage().deserialize(L4M4.get("success.clan_disbanded_leave")));
                 return true;
             }
 
             // ========== LEAVE ==========
             case "leave" -> {
                 if (!clans.isInClan(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>You are not in a clan!</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.not_in_clan_info")));
                     return true;
                 }
                 Clan currentClan = clans.getClanByMember(playerUUID);
                 if (currentClan == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Could not find your clan.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
-
-                // Leader kann nicht einfach gehen, ohne disband oder transfer
                 if (currentClan.isLeader(playerUUID)) {
                     if (!currentClan.getMembers().isEmpty()) {
-                        player.sendMessage(miniMessage().deserialize("<color:red>You must transfer leadership or disband the clan before leaving.</color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("error.leader_cannot_leave")));
                     } else {
-                        // Keine weiteren Mitglieder -> disband
                         clans.removeClan(currentClan);
-                        player.sendMessage(miniMessage().deserialize(
-                                "<color:green>You have disbanded your clan (no other members) and left.</color>"));
+                        player.sendMessage(miniMessage().deserialize(L4M4.get("success.clan_disbanded_leave")));
                     }
                     return true;
                 }
-                // Vice -> Vice-Position freigeben
                 if (currentClan.isVice(playerUUID)) {
                     currentClan.setViceUUID(null);
                 }
                 currentClan.getMembers().remove(playerUUID);
                 currentClan.save();
-
                 player.sendMessage(miniMessage().deserialize(
-                        String.format("<color:green>You have left the clan %s.</color>", currentClan.getName())));
+                        String.format(L4M4.get("success.left_clan"), currentClan.getName())
+                ));
                 return true;
             }
 
-            // ========== MODIFY (Name/Tag) ==========
+            // ========== MODIFY ==========
             case "modify" -> {
                 if (!clans.isLeader(playerUUID)) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Only the clan leader can modify clan settings.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.only_leader_modify")));
                     return true;
                 }
                 if (args.length < 3) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Usage: /clan modify <name|tag> <newValue></color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("usage.clan_modify")));
                     return true;
                 }
                 String whatToModify = args[1].toLowerCase();
                 String newValue = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-
                 Clan currentClan = clans.getClanByMember(playerUUID);
                 if (currentClan == null) {
-                    player.sendMessage(miniMessage().deserialize("<color:red>Could not find your clan.</color>"));
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
-
                 switch (whatToModify) {
                     case "name" -> {
                         currentClan.setName(newValue);
                         currentClan.save();
-                        player.sendMessage(miniMessage().deserialize(String.format("<color:green>Clan name changed to %s.</color>", newValue)));
+                        player.sendMessage(miniMessage().deserialize(
+                                String.format("<green>Clan name changed to %s.</green>", newValue)
+                        ));
                     }
                     case "tag" -> {
                         Component newTag = miniMessage().deserialize(newValue);
                         currentClan.setTag(newTag);
                         currentClan.save();
-                        player.sendMessage(miniMessage().deserialize(String.format("<color:green>Clan tag changed to %s.</color>", newValue)));
+                        player.sendMessage(miniMessage().deserialize(
+                                String.format("<green>Clan tag changed to %s.</green>", newValue)
+                        ));
                     }
-                    default -> {
-                        player.sendMessage(miniMessage().deserialize("<color:red>You can only modify 'name' or 'tag'.</color>"));
-                    }
+                    default -> player.sendMessage(miniMessage().deserialize(L4M4.get("error.modify_invalid")));
                 }
                 return true;
             }
 
-            // ========== Fallback für Unbekanntes ==========
+            // ========== Fallback ==========
             default -> {
-                player.sendMessage(miniMessage().deserialize("<color:red>Unknown subcommand. Use /clan for help.</color>"));
+                player.sendMessage(miniMessage().deserialize(L4M4.get("error.unknown_subcommand")));
                 return true;
             }
-        }
-    }
-
-    /**
-     * Zeigt eine Liste aller Clans auf dem Server an.
-     */
-    private void sendClanList(Player player) {
-        // Hier nehmen wir an, dass 'clans.getClans()' alle existierenden Clans liefert.
-        Collection<Clan> allClans = clans.getClans();
-        if (allClans.isEmpty()) {
-            player.sendMessage(miniMessage().deserialize("<color:red>No clans found!</color>"));
-            return;
-        }
-
-        Component clanListComponent = Component.empty();
-        clanListComponent = clanListComponent.append(
-                miniMessage().deserialize("<color:#c70088>=== List of clans ===</color>\n"));
-
-        for (Clan clan : allClans) {
-            Component clanComponent = miniMessage().deserialize(
-                    String.format("  <color:#c70088>-</color> <color:#ff8800>%s</color>\n", clan.getName()));
-            clanListComponent = clanListComponent.append(clanComponent);
-        }
-        clanListComponent = clanListComponent.append(
-                miniMessage().deserialize("<color:#c70088>=====================</color>"));
-
-        player.sendMessage(clanListComponent);
-    }
-
-    /**
-     * Hilfsfunktion: Zeigt eine übersichtliche Hilfe basierend auf der Rolle (Leader, Vice, Member, Kein-Mitglied).
-     */
-    private void sendHelpMessage(Player player, UUID playerUUID) {
-        if (clans.isLeader(playerUUID)) {
-            Component l1 = miniMessage().deserialize("<color:#c70088>=== Clan Commands ===</color>\n");
-            Component l2 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Displays clan info'><click:run_command:'/clan info'><color:#10abc7>/clan info</color></click></hover>\n");
-            Component l3 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Invite a player'><click:run_command:'/clan invite'><color:#10abc7>/clan invite</color></click></hover>\n");
-            Component l4 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Kick a player'><click:run_command:'/clan kick'><color:#10abc7>/clan kick</color></click></hover>\n");
-            Component l5 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Transfer leadership'><click:run_command:'/clan transfer'><color:#10abc7>/clan transfer</color></click></hover>\n");
-            Component l6 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Promote a member'><click:run_command:'/clan promote'><color:#10abc7>/clan promote</color></click></hover>\n");
-            Component l7 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Demote the vice leader'><click:run_command:'/clan demote'><color:#10abc7>/clan demote</color></click></hover>\n");
-            Component l8 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Disband your clan'><click:run_command:'/clan disband'><color:#10abc7>/clan disband</color></click></hover>\n");
-            Component l9 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Leave your clan'><click:run_command:'/clan leave'><color:#10abc7>/clan leave</color></click></hover>\n");
-            Component l10 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Accept a join request'><click:run_command:'/clan accept'><color:#10abc7>/clan accept</color></click></hover>\n");
-            Component l11 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Deny a join request'><click:run_command:'/clan deny'><color:#10abc7>/clan deny</color></click></hover>\n");
-            Component l12 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Modify clan name or tag'><click:run_command:'/clan modify'><color:#10abc7>/clan modify</color></click></hover>\n");
-            Component l13 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Show a list of all clans'><click:run_command:'/clan list'><color:#10abc7>/clan list</color></click></hover>\n");
-            Component l14 = miniMessage().deserialize("<color:#c70088>=====================</color>");
-
-            player.sendMessage(l1.append(l2).append(l3).append(l4).append(l5)
-                    .append(l6).append(l7).append(l8).append(l9).append(l10).append(l11).append(l12).append(l13).append(l14));
-        } else if (clans.isVice(playerUUID)) {
-            Component l1 = miniMessage().deserialize("<color:#c70088>=== Clan Commands ===</color>\n");
-            Component l2 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Displays clan info'><click:run_command:'/clan info'><color:#10abc7>/clan info</color></click></hover>\n");
-            Component l3 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Invite a player'><click:run_command:'/clan invite'><color:#10abc7>/clan invite</color></click></hover>\n");
-            Component l4 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Kick a player'><click:run_command:'/clan kick'><color:#10abc7>/clan kick</color></click></hover>\n");
-            Component l5 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Demote the vice leader'><click:run_command:'/clan demote'><color:#10abc7>/clan demote</color></click></hover>\n");
-            Component l6 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Leave your clan'><click:run_command:'/clan leave'><color:#10abc7>/clan leave</color></click></hover>\n");
-            Component l7 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Accept a join request'><click:run_command:'/clan accept'><color:#10abc7>/clan accept</color></click></hover>\n");
-            Component l8 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Deny a join request'><click:run_command:'/clan deny'><color:#10abc7>/clan deny</color></click></hover>\n");
-            Component l9 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Show a list of all clans'><click:run_command:'/clan list'><color:#10abc7>/clan list</color></click></hover>\n");
-            Component l10 = miniMessage().deserialize("<color:#c70088>=====================</color>");
-
-            player.sendMessage(l1.append(l2).append(l3).append(l4).append(l5)
-                    .append(l6).append(l7).append(l8).append(l9).append(l10));
-        } else if (clans.isMember(playerUUID)) {
-            Component l1 = miniMessage().deserialize("<color:#c70088>=== Clan Commands ===</color>\n");
-            Component l2 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Displays clan info'><click:run_command:'/clan info'><color:#10abc7>/clan info</color></click></hover>\n");
-            Component l3 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Leave your clan'><click:run_command:'/clan leave'><color:#10abc7>/clan leave</color></click></hover>\n");
-            Component l4 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Show a list of all clans'><click:run_command:'/clan list'><color:#10abc7>/clan list</color></click></hover>\n");
-            Component l5 = miniMessage().deserialize("<color:#c70088>=====================</color>");
-
-            player.sendMessage(l1.append(l2).append(l3).append(l4).append(l5));
-        } else {
-            // Spieler ist in keinem Clan
-            Component l1 = miniMessage().deserialize("<color:#c70088>=== Clan Commands ===</color>\n");
-            Component l2 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Create a clan'><click:run_command:'/clan create'><color:#10abc7>/clan create</color></click></hover>\n");
-            Component l3 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Join a clan'><click:run_command:'/clan join'><color:#10abc7>/clan join</color></click></hover>\n");
-            Component l4 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Accept a clan invite'><click:run_command:'/clan accept'><color:#10abc7>/clan accept</color></click></hover>\n");
-            Component l5 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Deny a clan invite'><click:run_command:'/clan deny'><color:#10abc7>/clan deny</color></click></hover>\n");
-            Component l6 = miniMessage().deserialize("  <color:#c70088>-</color> <hover:show_text:'Show a list of all clans'><click:run_command:'/clan list'><color:#10abc7>/clan list</color></click></hover>\n");
-            Component l7 = miniMessage().deserialize("<color:#c70088>=====================</color>");
-
-            player.sendMessage(l1.append(l2).append(l3).append(l4).append(l5).append(l6).append(l7));
         }
     }
 
@@ -815,7 +716,6 @@ public class ClanCommand extends SimpleCommand {
         if (!(sender instanceof Player player)) return List.of();
         UUID playerUUID = player.getUniqueId();
 
-        // Erste Ebene der Subcommands
         if (args.length == 1) {
             if (clans.isLeader(playerUUID)) {
                 return Stream.of("info", "chat", "invite", "kick", "transfer", "promote",
@@ -839,7 +739,6 @@ public class ClanCommand extends SimpleCommand {
             }
         }
 
-        // Zweite Ebene
         if (args.length == 2) {
             if (clans.isLeader(playerUUID)) {
                 switch (args[0].toLowerCase()) {
@@ -862,12 +761,9 @@ public class ClanCommand extends SimpleCommand {
                     case "demote" -> {
                         Clan clan = clans.getClanByMember(playerUUID);
                         if (clan == null || clan.getViceUUID() == null) return List.of();
-                        String viceName = Optional.ofNullable(
-                                        Bukkit.getOfflinePlayer(clan.getViceUUID()).getName())
+                        String viceName = Optional.ofNullable(Bukkit.getOfflinePlayer(clan.getViceUUID()).getName())
                                 .orElse(clan.getViceUUID().toString());
-                        return viceName.startsWith(args[1])
-                                ? List.of(viceName)
-                                : List.of();
+                        return viceName.startsWith(args[1]) ? List.of(viceName) : List.of();
                     }
                     case "accept", "deny" -> {
                         List<String> joins = getClanJoinRequests(args, playerUUID);
@@ -901,12 +797,9 @@ public class ClanCommand extends SimpleCommand {
                     case "demote" -> {
                         Clan clan = clans.getClanByMember(playerUUID);
                         if (clan == null || clan.getViceUUID() == null) return List.of();
-                        String viceName = Optional.ofNullable(
-                                        Bukkit.getOfflinePlayer(clan.getViceUUID()).getName())
+                        String viceName = Optional.ofNullable(Bukkit.getOfflinePlayer(clan.getViceUUID()).getName())
                                 .orElse(clan.getViceUUID().toString());
-                        return viceName.startsWith(args[1])
-                                ? List.of(viceName)
-                                : List.of();
+                        return viceName.startsWith(args[1]) ? List.of(viceName) : List.of();
                     }
                     case "accept", "deny" -> {
                         List<String> joins = getClanJoinRequests(args, playerUUID);
@@ -917,7 +810,6 @@ public class ClanCommand extends SimpleCommand {
             } else {
                 switch (args[0].toLowerCase()) {
                     case "accept", "deny" -> {
-                        // Zeige alle Clan-Einladungen an
                         return clanInvites.entrySet().stream()
                                 .filter(entry -> entry.getValue().contains(playerUUID))
                                 .map(entry -> entry.getKey().getName())
@@ -925,7 +817,6 @@ public class ClanCommand extends SimpleCommand {
                                 .collect(Collectors.toList());
                     }
                     case "join" -> {
-                        // Zeige alle Clans an
                         return clans.getClans().stream()
                                 .map(Clan::getName)
                                 .filter(s -> s.startsWith(args[1]))
@@ -939,15 +830,12 @@ public class ClanCommand extends SimpleCommand {
             }
         }
 
-        // Dritte Ebene (z. B. /clan modify name <newName>)
         if (args.length == 3) {
-            if (clans.isLeader(playerUUID)) {
-                if (args[0].equalsIgnoreCase("modify")) {
-                    if (args[1].equalsIgnoreCase("name")) {
-                        return Collections.singletonList("<newName>");
-                    } else if (args[1].equalsIgnoreCase("tag")) {
-                        return Collections.singletonList("<newTag>");
-                    }
+            if (clans.isLeader(playerUUID) && args[0].equalsIgnoreCase("modify")) {
+                if (args[1].equalsIgnoreCase("name")) {
+                    return Collections.singletonList("<newName>");
+                } else if (args[1].equalsIgnoreCase("tag")) {
+                    return Collections.singletonList("<newTag>");
                 }
             } else if (args[0].equalsIgnoreCase("create")) {
                 return Collections.singletonList("<tag>");
@@ -956,9 +844,6 @@ public class ClanCommand extends SimpleCommand {
         return List.of();
     }
 
-    /**
-     * Liefert zu einem Namen die passende UUID aus einer UUID-Liste (z. B. Join-Anfragen).
-     */
     @Nullable
     private UUID getUuidByName(List<UUID> uuidList, String playerName) {
         for (UUID uuid : uuidList) {
@@ -970,21 +855,28 @@ public class ClanCommand extends SimpleCommand {
         return null;
     }
 
-    /**
-     * Hilfsfunktion für Tab-Completion (Zeigt Spielernamen von Join-Anfragen).
-     */
     @Nullable
     private List<String> getClanJoinRequests(@NotNull String[] args, UUID playerUUID) {
         Clan clan = clans.getClanByMember(playerUUID);
         if (clan == null) return null;
-
         LinkedList<UUID> joins = clanJoins.get(clan);
         if (joins == null) return null;
-
         return joins.stream()
                 .map(uuid -> Bukkit.getOfflinePlayer(uuid).getName())
                 .filter(Objects::nonNull)
                 .filter(name -> name.startsWith(args[1]))
                 .collect(Collectors.toList());
+    }
+
+    private void sendHelpMessage(Player player, UUID playerUUID) {
+        if (clans.isLeader(playerUUID)) {
+            player.sendMessage(miniMessage().deserialize(L4M4.get("help.leader")));
+        } else if (clans.isVice(playerUUID)) {
+            player.sendMessage(miniMessage().deserialize(L4M4.get("help.vice")));
+        } else if (clans.isMember(playerUUID)) {
+            player.sendMessage(miniMessage().deserialize(L4M4.get("help.member")));
+        } else {
+            player.sendMessage(miniMessage().deserialize(L4M4.get("help.none")));
+        }
     }
 }

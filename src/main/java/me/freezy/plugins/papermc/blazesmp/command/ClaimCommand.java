@@ -5,6 +5,7 @@ import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
 import me.freezy.plugins.papermc.blazesmp.listener.ChunkInventoryManager;
 import me.freezy.plugins.papermc.blazesmp.module.Clan;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Chunk;
 import org.bukkit.command.Command;
@@ -27,12 +28,12 @@ public class ClaimCommand extends SimpleCommand {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>You must be a player to use this command!"));
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.not_a_player")));
             return true;
         }
         UUID playerUUID = player.getUniqueId();
         if (!clans.isInClan(playerUUID)) {
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You must be in a clan to claim/unclaim chunks!"));
+            player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.not_in_clan")));
             return true;
         } else {
             if (label.equalsIgnoreCase("claim")) {
@@ -41,21 +42,21 @@ public class ClaimCommand extends SimpleCommand {
                     return true;
                 }
                 Clan playerClan = clans.getClanByMember(playerUUID);
-                LinkedHashMap<UUID, LinkedList<Chunk>> existingClaims=clans.getClanChunks(playerClan);
+                LinkedHashMap<UUID, LinkedList<Chunk>> existingClaims = clans.getClanChunks(playerClan);
                 if (!existingClaims.containsKey(playerUUID)) {
                     existingClaims.put(playerUUID, new LinkedList<>());
                 }
                 LinkedList<Chunk> playerClaims = existingClaims.get(playerUUID);
                 int MAX_CLAIMS = 50;
                 if (playerClaims.size() >= MAX_CLAIMS) {
-                    player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You have reached the maximum amount of claims!"));
+                    player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.max_claims_reached")));
                 } else {
                     Chunk playerChunk = player.getLocation().getChunk();
                     if (clans.isChunkClaimed(playerChunk)) {
-                        player.sendMessage(MiniMessage.miniMessage().deserialize("<red>This chunk is already claimed!"));
+                        player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.chunk_already_claimed")));
                     } else {
                         playerClaims.add(playerChunk);
-                        player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Claimed chunk!"));
+                        player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("success.chunk_claimed")));
                         existingClaims.put(playerUUID, playerClaims);
                         clans.setClanChunks(playerClan, existingClaims);
                         playerClan.save();
@@ -65,19 +66,19 @@ public class ClaimCommand extends SimpleCommand {
                 return true;
             } else if (label.equalsIgnoreCase("unclaim")) {
                 Clan playerClan = clans.getClanByMember(playerUUID);
-                LinkedHashMap<UUID, LinkedList<Chunk>> existingClaims=clans.getClanChunks(playerClan);
+                LinkedHashMap<UUID, LinkedList<Chunk>> existingClaims = clans.getClanChunks(playerClan);
                 if (existingClaims.containsKey(playerUUID)) {
                     LinkedList<Chunk> playerClaims = existingClaims.get(playerUUID);
                     Chunk playerChunk = player.getLocation().getChunk();
                     if (playerClaims.contains(playerChunk)) {
                         playerClaims.remove(playerChunk);
-                        player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Unclaimed chunk!"));
+                        player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("success.chunk_unclaimed")));
                         existingClaims.put(playerUUID, playerClaims);
                         clans.setClanChunks(playerClan, existingClaims);
                         playerClan.save();
                         clans.saveAllClans();
                     } else {
-                        player.sendMessage(MiniMessage.miniMessage().deserialize("<red>You do not own this chunk!"));
+                        player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.chunk_not_owned")));
                     }
                     return true;
                 }

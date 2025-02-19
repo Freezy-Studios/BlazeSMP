@@ -1,6 +1,7 @@
 package me.freezy.plugins.papermc.blazesmp.tasks;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -17,6 +18,7 @@ public class PlayerTeleportHomeTimer extends BukkitRunnable {
 
     // Felder für den Spiraleneffekt
     private double angle = 0;
+    private double yOffset = 0;
 
     public PlayerTeleportHomeTimer(Player player) {
         this.player = player;
@@ -32,36 +34,45 @@ public class PlayerTeleportHomeTimer extends BukkitRunnable {
         if (player.getLocation().getX() != origX ||
                 player.getLocation().getY() != origY ||
                 player.getLocation().getZ() != origZ) {
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Teleporting cancelt you moved!</red>"));
+            player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("teleport.cancelled")));
             cancel();
             return;
         }
 
-        // Berechne, wie viele Ticks bereits vergangen sind
-        int ticksElapsed = (5 * 20) - ticksRemaining;
-
-        // Erzeuge den Spiraleneffekt
         Location baseLoc = player.getLocation();
         double radius = 1.5;
-        double offsetX = Math.cos(angle) * radius;
-        double offsetZ = Math.sin(angle) * radius;
-        // Inkrementiere den Y-Wert, sodass die Spirale nach oben steigt
-        double offsetY = 0.2 + ticksElapsed * 0.05;
-        Location particleLoc = baseLoc.clone().add(offsetX, offsetY, offsetZ);
-        player.getWorld().spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0, 0);
 
-        // Erhöhe den Winkel schneller, sodass sich die Spirale schneller dreht
+        // Schleife für einen schnelleren Effekt: Mehrere Partikel pro Tick
+        // Basis-Inkrement des Winkels
         double angleIncrement = Math.PI / 4;
-        angle += angleIncrement;
+        for (int i = 0; i < 3; i++) {
+            double currentAngle = angle + (i * angleIncrement);
+            double offsetX = Math.cos(currentAngle) * radius;
+            double offsetZ = Math.sin(currentAngle) * radius;
+            // Verwende yOffset für die vertikale Verschiebung und setze zurück, wenn er über 2 liegt
+            double currentYOffset = yOffset;
+            if (currentYOffset > 2) {
+                currentYOffset = 0;
+            }
+            Location particleLoc = baseLoc.clone().add(offsetX, currentYOffset, offsetZ);
+            player.getWorld().spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0, 0);
+        }
+
+        // Erhöhe den globalen Winkel und yOffset für den nächsten Tick
+        angle += angleIncrement * 3; // da 3 Partikel pro Tick
+        yOffset += 0.05 * 3;
+        if (yOffset > 2) {
+            yOffset = 0;
+        }
 
         // Teleport-Countdown und Nachrichten
         if (ticksRemaining <= 0) {
             player.teleportAsync(BlazeSMP.getInstance().getHomes().getHome(player));
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Teleported!</green>"));
+            player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("teleport.success")));
             cancel();
         } else if (ticksRemaining % 20 == 0) {
             int secondsLeft = ticksRemaining / 20;
-            String message = String.format("<yellow>Teleporting to home in %s seconds!</yellow>", secondsLeft);
+            String message = String.format(L4M4.get("teleport.countdown"), secondsLeft);
             player.sendMessage(MiniMessage.miniMessage().deserialize(message));
         }
 

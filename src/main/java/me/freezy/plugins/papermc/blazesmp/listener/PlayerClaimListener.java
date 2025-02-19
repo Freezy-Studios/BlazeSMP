@@ -3,7 +3,7 @@ package me.freezy.plugins.papermc.blazesmp.listener;
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.module.Clan;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
-import net.kyori.adventure.text.Component;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -13,17 +13,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.inventory.Inventory;
 
 public class PlayerClaimListener implements Listener {
-
-    Component title = MiniMessage.miniMessage().deserialize("<gold>Clan Chunks</gold>");
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Location location = event.getBlock().getLocation();
@@ -108,25 +103,24 @@ public class PlayerClaimListener implements Listener {
         Clan oldClan = clans.getClanByChunk(fromChunk);
         Clan newClan = clans.getClanByChunk(toChunk);
 
-        if (oldClan != null && (!oldClan.equals(newClan))) {
-            player.sendActionBar(
-                    MiniMessage.miniMessage().deserialize(
-                            "<red>You left the claim of <white>" + oldClan.getName() + "</white>!</red>"
-                    )
+        // Falls der Spieler den Claim wechselt (verlassen)
+        if (oldClan != null && newClan != null && !oldClan.equals(newClan)) {
+            String msg = String.format(
+                    L4M4.get("claim.entered"),
+                    newClan.getName()
             );
+            player.sendActionBar(MiniMessage.miniMessage().deserialize(msg));
         }
 
-        if (newClan != null && (!newClan.equals(oldClan))) {
-            player.sendActionBar(
-                    MiniMessage.miniMessage().deserialize(
-                            "<red>Territory of <white>" + newClan.getName() + "</white> - <white>" +
-                                    Bukkit.getOfflinePlayer(newClan.getChunkOwnerMap().get(toChunk)).getName() +
-                                    "!</white></red>"
-                    )
+        // Falls der Spieler in einen neuen Claim eintritt
+        if (newClan != null && !newClan.equals(oldClan)) {
+            String ownerName = Bukkit.getOfflinePlayer(newClan.getChunkOwnerMap().get(toChunk)).getName();
+            String msg = String.format(
+                    L4M4.get("claim.territory"),
+                    newClan.getName(),
+                    ownerName
             );
+            player.sendActionBar(MiniMessage.miniMessage().deserialize(msg));
         }
-
-
-
     }
 }
