@@ -6,8 +6,11 @@ import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import me.freezy.plugins.papermc.blazesmp.module.manager.ProtectedBlocks;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.*;
-import org.bukkit.block.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,49 +33,61 @@ public class ProtectedBlockListener implements Listener {
     private final ProtectedBlocks protectedBlocks = BlazeSMP.getInstance().getProtectedBlocks();
 
     // Supported storage block types
-    private final Set<Material> STORAGE_BLOCKS = Set.of(
+    private static final Set<Material> STORAGE_BLOCKS = Set.of(
             Material.CHEST, Material.TRAPPED_CHEST, Material.BARREL,
             Material.HOPPER, Material.DROPPER, Material.DISPENSER,
             Material.FURNACE, Material.BLAST_FURNACE, Material.SMOKER
     );
 
+    /*
+     * Prevents items from being transferred into protected storages.
+     */
     @EventHandler
     public void onItemTransferHopperEvent(InventoryMoveItemEvent event) {
-        Block destinationBlock = Objects.requireNonNull(event.getDestination().getLocation()).getBlock();
+        Location destLocation = event.getDestination().getLocation();
+        if (destLocation == null) return;
+        Block destinationBlock = destLocation.getBlock();
         if (isProtected(destinationBlock)) {
             event.setCancelled(true);
         }
     }
 
+    /*
+     * Handles player interactions with storage blocks.
+     * Supports locking, unlocking, linking keys, and opening GUIs.
+     */
     @EventHandler
     public void onBlockInteractEvent(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Block block = event.getClickedBlock();
-        if (block == null || !STORAGE_BLOCKS.contains(block.getType())) return;
+
+        if (block == null || !STORAGE_BLOCKS.contains(block.getType())) {
+            return;
+        }
 
         ItemStack mainHandItem = player.getInventory().getItemInMainHand();
         ProtectedBlock protectedBlock = getProtectedBlock(block);
 
-        // Owner (if the block is locked) can always access the management GUI.
+        // Owner can manage keys with shift-right-click if the block is already locked.
         if (player.isSneaking() && protectedBlock != null &&
                 protectedBlock.owner().equals(player.getUniqueId())) {
             openManageKeysGUI(player, block);
             return;
         }
 
-        // Shift + Right-click with a trial key: Relink the key to the new container.
+        // Shift + Right-click with a valid trial key relinks the key to the new container.
         if (player.isSneaking() && isValidKey(mainHandItem)) {
             relinkKey(player, mainHandItem, block);
             return;
         }
 
-        // Shift + Right-click without a key (and if the container is not locked) → open lock GUI.
+        // Shift + Right-click on an unlocked container opens the lock GUI.
         if (player.isSneaking() && protectedBlock == null) {
             openLockGUI(player, block);
             return;
         }
 
-        // Normal right-click with a valid key: open the container inventory.
+        // Normal right-click: if a valid key is held for a locked container, open the inventory.
         if (protectedBlock != null && isValidKey(mainHandItem, protectedBlock.key())) {
             if (block.getState() instanceof Container container) {
                 player.openInventory(container.getInventory());
@@ -80,19 +95,24 @@ public class ProtectedBlockListener implements Listener {
             return;
         }
 
-        // Normal right-click without a key on a locked container: show locked message.
+        // Normal right-click on a locked container without a valid key shows a locked message.
         if (protectedBlock != null) {
             String lockedMsg = String.format(L4M4.get("storage.locked"), "minecraft:trial_key");
             player.sendMessage(miniMessage.deserialize(lockedMsg));
         }
     }
 
+    /*
+     * Opens the lock GUI for a container.
+     * Two trial keys are created and the container is then registered as protected.
+     */
     private void openLockGUI(Player player, Block block) {
         String titleRaw = String.format(L4M4.get("storage.lock_gui_title"), block.getType().toString());
         Inventory lockInventory = Bukkit.createInventory(player, InventoryType.HOPPER,
                 miniMessage.deserialize(titleRaw));
 
         UUID lockUUID = UUID.randomUUID();
+        // Create two identical trial keys for symmetry
         ItemStack trialKey1 = createTrialKey(lockUUID);
         ItemStack trialKey2 = createTrialKey(lockUUID);
 
@@ -100,24 +120,33 @@ public class ProtectedBlockListener implements Listener {
         lockInventory.setItem(4, trialKey2);
 
         player.openInventory(lockInventory);
-        // Save the protected block.
+        // Save the protected block information
         protectedBlocks.addBlock(new ProtectedBlock(player.getUniqueId(), lockUUID, block.getLocation()));
     }
 
+    /*
+     * Opens the manage keys GUI for the owner to add or remove keys.
+     */
     private void openManageKeysGUI(Player player, Block block) {
         String titleRaw = String.format(L4M4.get("storage.manage_gui_title"), block.getType().toString());
         Inventory manageKeysInventory = Bukkit.createInventory(player, InventoryType.HOPPER,
                 miniMessage.deserialize(titleRaw));
 
+        // Create "Add Key" button
         ItemStack addKey = new ItemStack(Material.PAPER);
         ItemMeta addKeyMeta = addKey.getItemMeta();
-        addKeyMeta.displayName(miniMessage.deserialize(L4M4.get("storage.add_key")));
-        addKey.setItemMeta(addKeyMeta);
+        if (addKeyMeta != null) {
+            addKeyMeta.displayName(miniMessage.deserialize(L4M4.get("storage.add_key")));
+            addKey.setItemMeta(addKeyMeta);
+        }
 
+        // Create "Remove Key" button
         ItemStack removeKey = new ItemStack(Material.BARRIER);
         ItemMeta removeKeyMeta = removeKey.getItemMeta();
-        removeKeyMeta.displayName(miniMessage.deserialize(L4M4.get("storage.remove_key")));
-        removeKey.setItemMeta(removeKeyMeta);
+        if (removeKeyMeta != null) {
+            removeKeyMeta.displayName(miniMessage.deserialize(L4M4.get("storage.remove_key")));
+            removeKey.setItemMeta(removeKeyMeta);
+        }
 
         manageKeysInventory.setItem(1, addKey);
         manageKeysInventory.setItem(3, removeKey);
@@ -125,20 +154,29 @@ public class ProtectedBlockListener implements Listener {
         player.openInventory(manageKeysInventory);
     }
 
+    /*
+     * Relinks the provided trial key to the new block.
+     * A new lock UUID is generated and the key’s lore is updated.
+     */
     private void relinkKey(Player player, ItemStack key, Block newBlock) {
         UUID newLockUUID = UUID.randomUUID();
         ItemMeta meta = key.getItemMeta();
         if (meta != null) {
-            meta.lore(List.of(
+            List<Component> newLore = List.of(
                     miniMessage.deserialize(String.format(L4M4.get("storage.linked_to"), newLockUUID.toString())),
                     miniMessage.deserialize(L4M4.get("storage.not_usable_on_vaults"))
-            ));
+            );
+            meta.lore(newLore);
             key.setItemMeta(meta);
         }
         protectedBlocks.addBlock(new ProtectedBlock(player.getUniqueId(), newLockUUID, newBlock.getLocation()));
         player.sendMessage(miniMessage.deserialize(L4M4.get("storage.link_success")));
     }
 
+    /*
+     * Prevents any changes in the lock or manage keys GUIs.
+     * Also informs the player that the action was completed.
+     */
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         String title = event.getView().title().toString();
@@ -153,6 +191,10 @@ public class ProtectedBlockListener implements Listener {
         }
     }
 
+    /*
+     * Handles block breaking.
+     * If the block is protected, only the owner can break it.
+     */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
@@ -170,11 +212,17 @@ public class ProtectedBlockListener implements Listener {
         }
     }
 
+    /*
+     * Prevents explosions from destroying protected storage blocks.
+     */
     @EventHandler
     public void onExplosion(EntityExplodeEvent event) {
         event.blockList().removeIf(this::isProtected);
     }
 
+    /*
+     * Helper method to create a trial key with linked lock information.
+     */
     private ItemStack createTrialKey(UUID lockUUID) {
         ItemStack trialKey = new ItemStack(Material.TRIPWIRE_HOOK);
         ItemMeta meta = trialKey.getItemMeta();
@@ -189,10 +237,16 @@ public class ProtectedBlockListener implements Listener {
         return trialKey;
     }
 
+    /*
+     * Validates if the provided item is a trial key.
+     */
     private boolean isValidKey(ItemStack item) {
         return item != null && item.getType() == Material.TRIPWIRE_HOOK && item.hasItemMeta();
     }
 
+    /*
+     * Validates if the provided item is a trial key that is linked to the given lock UUID.
+     */
     private boolean isValidKey(ItemStack item, UUID lockUUID) {
         if (!isValidKey(item)) return false;
         ItemMeta meta = item.getItemMeta();
@@ -200,6 +254,9 @@ public class ProtectedBlockListener implements Listener {
         return Objects.requireNonNull(meta.lore()).stream().anyMatch(line -> line.contains(Component.text(lockUUID.toString())));
     }
 
+    /*
+     * Returns the ProtectedBlock associated with the given block, or null if not found.
+     */
     private ProtectedBlock getProtectedBlock(Block block) {
         return protectedBlocks.getBlocks().stream()
                 .filter(pb -> pb.location().equals(block.getLocation()))
@@ -207,6 +264,9 @@ public class ProtectedBlockListener implements Listener {
                 .orElse(null);
     }
 
+    /*
+     * Checks if a block is protected.
+     */
     private boolean isProtected(Block block) {
         return getProtectedBlock(block) != null;
     }

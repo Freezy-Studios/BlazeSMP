@@ -13,6 +13,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.Team;
 import org.slf4j.Logger;
 
 public final class BlazeSMP extends JavaPlugin {
@@ -82,7 +83,7 @@ public final class BlazeSMP extends JavaPlugin {
         pm.registerEvents(new ChunkInventoryListener(), this);
         pm.registerEvents(new PressurePlateListener(), this);
         pm.registerEvents(new PlayerVsPlayerListener(clans), this);
-        pm.registerEvents(new ProtectedBlockListener(), this);
+        //pm.registerEvents(new ProtectedBlockListener(), this);
         this.log.info("Registered EventListeners!");
 
         this.log.info("Starting Timer tasks...");
@@ -112,6 +113,10 @@ public final class BlazeSMP extends JavaPlugin {
         this.log.info("Saving Clans...");
         this.clans.saveAllClans();
         this.log.info("Saved Clans!");
+
+        this.log.info("Clearing Teams...");
+        getServer().getScoreboardManager().getMainScoreboard().getTeams().forEach(Team::unregister);
+        this.log.info("Cleared Teams!");
 
         this.log.info("Disabling BlazeSMP!");
     }

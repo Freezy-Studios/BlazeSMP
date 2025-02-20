@@ -2,7 +2,7 @@ package me.freezy.plugins.papermc.blazesmp.command;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
-import net.kyori.adventure.text.Component;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,23 +12,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class DiscordCommand extends SimpleCommand {
-
-    private final String discordUrl;
-
-    public DiscordCommand() {
-        super("discord");
-        this.discordUrl = BlazeSMP.getInstance().getConfig().getString("discord-url");
+public class ReloadCommand extends SimpleCommand {
+    public ReloadCommand() {
+        super("reloadconf");
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (sender instanceof Player player) {
-            Component message = MiniMessage.miniMessage().deserialize("<click:open_url:'" + discordUrl + "'><gradient:#00ff00:#0000ff><b>Click here to join our Discord!</b></gradient></click>");
-            player.sendMessage(message);
-        } else {
-            sender.sendMessage("This command can only be used by players.");
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.not_a_player")));
+            return true;
         }
+        BlazeSMP.getInstance().getClans().saveAllClans();
+        BlazeSMP.getInstance().saveConfig();
+        BlazeSMP.getInstance().reloadConfig();
+        BlazeSMP.getInstance().getProtectedBlocks().save();
+        BlazeSMP.getInstance().getHomes().save();
+        player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("config.reloaded")));
         return true;
     }
 

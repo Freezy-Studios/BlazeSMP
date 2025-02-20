@@ -105,6 +105,7 @@
   "chunk.navigation.previous": "<green>Previous Page</green>",
   "chunk.navigation.next": "<green>Next Page</green>",
   "chunk.clicked": "<yellow>You clicked on Chunk item: %s.</yellow>",
+  "chunk.unclaim_lore": "<gray>Click to unclaim!</gray>",
 
   "claim.entered": "<red>You entered the claim of <white>%s</white>!</red>",
   "claim.territory": "<red>Territory of <white>%s</white> - <white>%s</white>!</red>",
@@ -124,7 +125,7 @@
   ],
   "tablist.footer": [
       "<aqua>hosted by merged.games</aqua>",
-      "<c:light_gray>made by BlazeHC Team & Freezy/DaTTV</c>"
+      "<c:gray>made by BlazeHC Team & Freezy/DaTTV</c>"
   ],
 
   "storage.locked": "<red>This storage is locked! You need a <yellow>%s</yellow> to open it.</red>",
@@ -140,5 +141,7 @@
   "storage.action_completed": "<green>Action completed successfully!</green>",
   "storage.removed_lock": "<green>You removed the lock from this storage.</green>",
   "storage.break_denied": "<red>You cannot break this locked storage!</red>",
-  "storage.trial_key": "<gold>Linked Trial Key</gold>"
+  "storage.trial_key": "<gold>Linked Trial Key</gold>",
+
+  "config.reloaded": "<green>Config reloaded!</green>"
 }

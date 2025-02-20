@@ -30,8 +30,9 @@ public class PlayerManager {
     public void setPlayerTeam(Player player) {
         Clans clans = BlazeSMP.getInstance().getClans();
         UUID playerUUID = player.getUniqueId();
-        player.setScoreboard(player.getServer().getScoreboardManager().getMainScoreboard());
         Scoreboard scoreboard = player.getScoreboard();
+        if (!scoreboard.equals(player.getServer().getScoreboardManager().getMainScoreboard()))
+            player.setScoreboard(player.getServer().getScoreboardManager().getMainScoreboard());
         String teamName;
         if (clans.isInClan(playerUUID)) {
             teamName=clanChars.get(clans.getClanByMember(playerUUID));
@@ -46,8 +47,7 @@ public class PlayerManager {
             teamName="zzzm";
         }
         teamName+=generateRandomString();
-        scoreboard.getTeams().forEach(Team::unregister);
-        Team team = scoreboard.getTeam(teamName);
+        Team team = scoreboard.getPlayerTeam(player);
         if (team == null) {
             team = scoreboard.registerNewTeam(teamName);
         }

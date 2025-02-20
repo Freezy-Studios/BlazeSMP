@@ -56,7 +56,7 @@ public class ClaimCommand extends SimpleCommand {
                         player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.chunk_already_claimed")));
                     } else {
                         // claim too close to spawn 8 chunks
-                        if (playerChunk.getX() < 8 && playerChunk.getZ() < 8) {
+                        if (player.getX() < 152 && player.getZ() < 152) {
                             player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.chunk_too_close_to_spawn")));
                             return true;
                         }
