@@ -116,5 +116,13 @@
 
   "teleport.cancelled": "<red>Teleporting cancelled, you moved!</red>",
   "teleport.success": "<green>Teleported!</green>",
-  "teleport.countdown": "<yellow>Teleporting to home in %s seconds!</yellow>"
+  "teleport.countdown": "<yellow>Teleporting to home in %s seconds!</yellow>",
+
+  "tablist.header": [
+    "<b><gold>BlazeSMP</gold></b>"
+  ],
+    "tablist.footer": [
+        "<aqua>hosted by merged.games</aqua>",
+        "<c:light_gray>made by BlazeHC Team & Freezy/DaTTV</c>"
+    ]
 }

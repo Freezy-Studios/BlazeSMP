@@ -12,6 +12,7 @@ import me.freezy.plugins.papermc.blazesmp.module.manager.Homes;
 import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import me.freezy.plugins.papermc.blazesmp.module.manager.ProtectedBlocks;
 import me.freezy.plugins.papermc.blazesmp.tasks.PlayerNameUpdate;
+import me.freezy.plugins.papermc.blazesmp.tasks.TabListTimer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,6 +27,7 @@ public final class BlazeSMP extends JavaPlugin {
     @Getter private FileConfiguration configuration;
     @Getter private Logger log;
     @Getter private BukkitTask nameUpdateTask;
+    @Getter private BukkitTask tabListUpdateTask;
 
     @Override
     public void onLoad() {
@@ -87,6 +89,7 @@ public final class BlazeSMP extends JavaPlugin {
 
         this.log.info("Starting Timer tasks...");
         this.nameUpdateTask = new PlayerNameUpdate().runTaskTimer(this, 0L, 20L);
+        this.tabListUpdateTask = new TabListTimer().runTaskTimer(this, 0L, 20L);
         this.log.info("Started Timer tasks!");
 
         this.log.info("Enabled BlazeSMP!");
