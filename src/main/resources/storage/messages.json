@@ -29,6 +29,7 @@
   "error.chunk_already_claimed": "<red>Chunk is already claimed!</red>",
   "error.max_claims_reached": "<red>You cannot claim more than 50 chunks!</red>",
   "error.chunk_too_close_to_spawn": "<red>Chunk is too close to spawn!</red>",
+  "error.not_found": "<red>Not Found</red>",
 
   "usage.clan_create": "<red>Usage: /clan create <name> <tag></red>",
   "usage.clan_chat": "<red>Usage: /clan chat <message></red>",
@@ -121,8 +122,23 @@
   "tablist.header": [
     "<b><gold>BlazeSMP</gold></b>"
   ],
-    "tablist.footer": [
-        "<aqua>hosted by merged.games</aqua>",
-        "<c:light_gray>made by BlazeHC Team & Freezy/DaTTV</c>"
-    ]
+  "tablist.footer": [
+      "<aqua>hosted by merged.games</aqua>",
+      "<c:light_gray>made by BlazeHC Team & Freezy/DaTTV</c>"
+  ],
+
+  "storage.locked": "<red>This storage is locked! You need a <yellow>%s</yellow> to open it.</red>",
+  "storage.lock_gui_title": "<blue>Lock & Link Storage - %s</blue>",
+  "storage.lock_gui_title_prefix": "<blue>Lock & Link Storage</blue>",
+  "storage.manage_gui_title": "<green>Manage Keys - %s</green>",
+  "storage.manage_gui_title_prefix": "<green>Manage Keys</green>",
+  "storage.add_key": "<green>Add Key</green>",
+  "storage.remove_key": "<red>Remove Key</red>",
+  "storage.linked_to": "<gray>Linked to: %s</gray>",
+  "storage.not_usable_on_vaults": "<red>Not usable on vaults</red>",
+  "storage.link_success": "<green>Your key has been successfully linked to the new storage!</green>",
+  "storage.action_completed": "<green>Action completed successfully!</green>",
+  "storage.removed_lock": "<green>You removed the lock from this storage.</green>",
+  "storage.break_denied": "<red>You cannot break this locked storage!</red>",
+  "storage.trial_key": "<gold>Linked Trial Key</gold>"
 }

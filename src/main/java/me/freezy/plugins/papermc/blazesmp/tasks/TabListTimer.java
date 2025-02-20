@@ -26,10 +26,10 @@ public class TabListTimer extends BukkitRunnable {
 
         // Falls eine Liste leer ist, setzen wir eine Fallback-Nachricht
         if (header.isEmpty()) {
-            header.add("<gray>Error</gray>");
+            header.add(L4M4.get("error.not_found"));
         }
         if (footer.isEmpty()) {
-            footer.add("<gray>Error</gray>");
+            footer.add(L4M4.get("error.not_found"));
         }
     }
 

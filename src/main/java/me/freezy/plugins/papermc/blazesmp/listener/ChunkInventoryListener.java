@@ -19,7 +19,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.*;
 
-public class ChunkInventoryManager implements Listener {
+public class ChunkInventoryListener implements Listener {
 
     // Speichert pro Spieler den aktuellen Seitenindex
     private final PaginatedData paginatedData = new PaginatedData();
@@ -32,7 +32,7 @@ public class ChunkInventoryManager implements Listener {
             ));
             return;
         }
-        new ChunkInventoryManager().chunksInv(player, clan);
+        new ChunkInventoryListener().chunksInv(player, clan);
     }
 
     /**

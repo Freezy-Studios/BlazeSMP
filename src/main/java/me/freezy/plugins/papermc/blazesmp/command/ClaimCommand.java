@@ -2,7 +2,7 @@ package me.freezy.plugins.papermc.blazesmp.command;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
-import me.freezy.plugins.papermc.blazesmp.listener.ChunkInventoryManager;
+import me.freezy.plugins.papermc.blazesmp.listener.ChunkInventoryListener;
 import me.freezy.plugins.papermc.blazesmp.module.Clan;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
@@ -38,7 +38,7 @@ public class ClaimCommand extends SimpleCommand {
         } else {
             if (label.equalsIgnoreCase("claim")) {
                 if (args.length != 0 && args[0].equalsIgnoreCase("see")) {
-                    ChunkInventoryManager.openInv(player);
+                    ChunkInventoryListener.openInv(player);
                     return true;
                 }
                 Clan playerClan = clans.getClanByMember(playerUUID);
