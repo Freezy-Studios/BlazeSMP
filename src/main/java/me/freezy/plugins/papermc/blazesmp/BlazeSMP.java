@@ -72,6 +72,7 @@ public final class BlazeSMP extends JavaPlugin {
         new ClaimCommand().register();
         new HomeCommand().register();
         new DiscordCommand().register();
+        new ReloadCommand().register();
         this.log.info("Registered Commands!");
 
         this.log.info("Registering EventListeners...");
