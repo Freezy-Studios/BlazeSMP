@@ -113,6 +113,7 @@
   "command.blocked": "<red>Unknown or incomplete command, see below for error\n<u>%s</u><i> <--[HERE]</i>",
 
   "player.join": "<gray>[<green>+</green>]</gray> <reset>",
+  "player.left": "<gray>[<red>-</red>]</gray> <reset>",
 
   "pressureplate.teleport": "<red>You need to wait 5 seconds to be teleported.</red>",
 
@@ -125,7 +126,7 @@
   ],
   "tablist.footer": [
       "<aqua>hosted by merged.games</aqua>",
-      "<c:gray>made by BlazeHC Team & Freezy/DaTTV</c>"
+      "<c:gray>made by BlazeGHC Team</c>"
   ],
 
   "storage.locked": "<red>This storage is locked! You need a <yellow>%s</yellow> to open it.</red>",
