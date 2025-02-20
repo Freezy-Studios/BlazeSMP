@@ -17,9 +17,7 @@ public class PlayerVsPlayerListener implements Listener {
 
     @EventHandler
     public void onPVP(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
-            Player damager = (Player) event.getDamager();
-            Player victim = (Player) event.getEntity();
+        if (event.getDamager() instanceof Player damager && event.getEntity() instanceof Player victim) {
 
             Clan damagerClan = clanManager.getClanByMember(damager.getUniqueId());
             Clan victimClan = clanManager.getClanByMember(victim.getUniqueId());
