@@ -1,5 +1,6 @@
 package me.freezy.plugins.papermc.blazesmp.tasks;
 
+import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -51,7 +52,7 @@ public class TabListTimer extends BukkitRunnable {
 
         index++;
 
-        if (index >= Math.max(header.size(), footer.size())) {
+        if (index >= BlazeSMP.getInstance().getConfiguration().getInt("tab_update_interval", 5)) {
             index = 0;
         }
     }
