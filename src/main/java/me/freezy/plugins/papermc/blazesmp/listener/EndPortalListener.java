@@ -1,6 +1,6 @@
 package me.freezy.plugins.papermc.blazesmp.listener;
 
-import me.freezy.plugins.papermc.blazeghcsmpclan.Main;
+import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -11,9 +11,9 @@ import org.bukkit.event.player.PlayerPortalEvent;
 
 public class EndPortalListener implements Listener {
 
-    private final Main plugin;
+    private final BlazeSMP plugin;
 
-    public EndPortalListener(Main plugin) {
+    public EndPortalListener(BlazeSMP plugin) {
         this.plugin = plugin;
     }
 

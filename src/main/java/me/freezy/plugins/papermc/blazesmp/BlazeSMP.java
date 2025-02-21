@@ -28,26 +28,25 @@ public final class BlazeSMP extends JavaPlugin {
     @Getter private BukkitTask tabListUpdateTask;
     private boolean isEndOpen;
 
-
     @Override
     public void onLoad() {
-        this.log=getSLF4JLogger();
+        this.log = getSLF4JLogger();
 
         this.log.info("Loading BlazeSMP...");
 
         this.log.info("Loading ProtectedBlocks...");
-        this.protectedBlocks=new ProtectedBlocks();
+        this.protectedBlocks = new ProtectedBlocks();
         this.protectedBlocks.load();
         this.log.info("Loaded ProtectedBlocks!");
 
         this.log.info("Loading Clans...");
-        this.clans=new Clans();
+        this.clans = new Clans();
         this.clans.loadAllClans();
         this.log.info("Loaded Clans!");
 
         this.log.info("Loading config...");
         saveDefaultConfig();
-        this.configuration= getConfig();
+        this.configuration = getConfig();
         saveConfig();
         this.log.info("Loaded config!");
 
@@ -60,12 +59,13 @@ public final class BlazeSMP extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        BlazeSMP.instance=this;
+        BlazeSMP.instance = this;
+        isEndOpen = getConfig().getBoolean("isEndOpen", false);
 
         this.log.info("Enabling BlazeSMP...");
 
         this.log.info("Loading Homes...");
-        this.homes=new Homes();
+        this.homes = new Homes();
         this.homes.load();
         this.log.info("Loaded Homes!");
 
@@ -77,6 +77,7 @@ public final class BlazeSMP extends JavaPlugin {
         new DiscordCommand().register();
         new ReloadCommand().register();
         new VanishCommand().register();
+        new EventCommand(this).register();
         this.log.info("Registered Commands!");
 
         this.log.info("Registering EventListeners...");
@@ -125,11 +126,14 @@ public final class BlazeSMP extends JavaPlugin {
 
         this.log.info("Disabling BlazeSMP!");
     }
+
     public boolean isEndOpen() {
         return isEndOpen;
     }
 
     public void setEndOpen(boolean endOpen) {
         isEndOpen = endOpen;
+        getConfig().set("isEndOpen", endOpen);
+        saveConfig();
     }
 }
