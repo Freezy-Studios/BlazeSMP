@@ -32,11 +32,13 @@ public class HomeCommand extends SimpleCommand {
 
         if (label.equalsIgnoreCase("sethome")) {
             homes.setHome(player);
+            homes.save();
             player.sendMessage(MiniMessage.miniMessage().deserialize(
                     L4M4.get("home.sethome.success")
             ));
         } else if (label.equalsIgnoreCase("delhome")) {
             homes.removeHome(player);
+            homes.save();
             player.sendMessage(MiniMessage.miniMessage().deserialize(
                     L4M4.get("home.delhome.success")
             ));
@@ -48,6 +50,7 @@ public class HomeCommand extends SimpleCommand {
                 new PlayerTeleportHomeTimer(player).runTaskTimer(BlazeSMP.getInstance(), 0, 1);
             } else {
                 homes.setHome(player);
+                homes.save();
                 player.sendMessage(MiniMessage.miniMessage().deserialize(
                         L4M4.get("home.sethome.success")
                 ));

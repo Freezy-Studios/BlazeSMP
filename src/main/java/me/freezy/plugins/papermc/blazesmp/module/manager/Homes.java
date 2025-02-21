@@ -123,12 +123,10 @@ public class Homes {
 
     public void setHome(Player player) {
         homes.put(player.getUniqueId(), player.getLocation());
-        save();
     }
 
     public void removeHome(Player player) {
         homes.remove(player.getUniqueId());
-        save();
     }
 
     /**
