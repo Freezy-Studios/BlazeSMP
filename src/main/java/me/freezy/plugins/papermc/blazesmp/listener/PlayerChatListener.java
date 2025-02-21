@@ -20,8 +20,6 @@ public class PlayerChatListener implements Listener {
                 .append(Component.text(": "))
                 .append(messageComponent);
 
-        player.sendMessage(player.playerListName());
-
         event.renderer((source, sourceDisplayName, msg, viewer) -> chatComponent);
     }
 }
