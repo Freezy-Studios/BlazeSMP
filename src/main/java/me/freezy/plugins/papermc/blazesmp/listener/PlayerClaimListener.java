@@ -33,6 +33,8 @@ public class PlayerClaimListener implements Listener {
         }
     }
 
+
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Location location = event.getBlock().getLocation();

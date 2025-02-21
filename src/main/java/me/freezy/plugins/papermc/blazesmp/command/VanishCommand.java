@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class VanishCommand extends SimpleCommand {
     private final Set<UUID> vanishedPlayers = new HashSet<>();
-    private static boolean isvanished = true;
+    private boolean isvanished = true;
 
     public VanishCommand() {
         super("vanish");
@@ -31,16 +31,25 @@ public class VanishCommand extends SimpleCommand {
             return false;
         }
         Player player = (Player) sender;
-        Player online = (Player) Bukkit.getOnlinePlayers();
 
-        if (isvanished) {
-            player.showPlayer(BlazeSMP.getInstance(), online);
-            vanishedPlayers.remove(player.getUniqueId());
-            online.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.join")));
+        if (player.isOp()) {
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                if (isvanished) {
+                    player.showPlayer(BlazeSMP.getInstance(), online);
+                    online.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.join")));
+                } else {
+                    player.hidePlayer(BlazeSMP.getInstance(), online);
+                    online.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.left")));
+                }
+            }
+            if (isvanished) {
+                vanishedPlayers.remove(player.getUniqueId());
+            } else {
+                vanishedPlayers.add(player.getUniqueId());
+            }
         } else {
-            player.hidePlayer(BlazeSMP.getInstance(), online);
-            vanishedPlayers.add(player.getUniqueId());
-            online.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.left")));
+            player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.no_permission")));
+            return false;
         }
 
         isvanished = !isvanished;

@@ -136,6 +136,7 @@ public class Clan {
         this.chunkAmount = loaded.chunkAmount;
     }
 
+
     /**
      * Saves the clan data to its corresponding JSON file.
      */
