@@ -28,6 +28,7 @@ public class ReloadCommand extends SimpleCommand {
         BlazeSMP.getInstance().reloadConfig();
         BlazeSMP.getInstance().getProtectedBlocks().save();
         BlazeSMP.getInstance().getHomes().save();
+        L4M4.init();
         player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("config.reloaded")));
         return true;
     }
