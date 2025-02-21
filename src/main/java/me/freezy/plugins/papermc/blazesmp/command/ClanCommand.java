@@ -510,12 +510,10 @@ public class ClanCommand extends SimpleCommand {
                     player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("error.player_not_in_clan"), newLeaderName)));
                     return true;
                 }
-                if (!currentClan.getMembers().contains(playerUUID)) {
-                    currentClan.getMembers().add(playerUUID);
-                }
+
                 currentClan.setLeaderUUID(newLeaderUUID);
                 if (currentClan.isVice(newLeaderUUID)) {
-                    currentClan.setViceUUID(null);
+                    currentClan.setViceUUID(playerUUID);
                 }
                 currentClan.save();
                 player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("success.leadership_transferred"), newLeaderName)));

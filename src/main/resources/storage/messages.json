@@ -147,7 +147,6 @@
 
   "config.reloaded": "<green>Config reloaded!</green>",
   "error.clan_full": "<red>The clan is full.</red>",
-  "error.clan_not_found": "<red>Clan not found.</red>",
   "success.invite_sent": "<green>Invite sent to %s.</green>",
   "error.no_permission": "<red>You can't do this.</red>",
   "join.notify": "<green>WICHTIG!!! Die Clans wurden aufgelöst, das aktuelle Clanlimit liegt bei 10 Membern. Jeder hat damit die Chance einen neuen Clan selbst zu gründen, da die großen Clans keine unendliche Kapazität mehr haben.</green>"

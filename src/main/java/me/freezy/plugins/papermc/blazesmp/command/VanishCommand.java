@@ -11,14 +11,16 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 public class VanishCommand extends SimpleCommand {
-    private final Set<UUID> vanishedPlayers = new HashSet<>();
-    private boolean isvanished = true;
+    private final Map<UUID, Boolean> vanishedPlayers = new HashMap();
+
+
+
 
     public VanishCommand() {
         super("vanish");
@@ -26,33 +28,31 @@ public class VanishCommand extends SimpleCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("Du bist kein Spieler!");
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(L4M4.get("error.not_a_player"));
             return false;
         }
-        Player player = (Player) sender;
 
         if (player.isOp()) {
             for (Player online : Bukkit.getOnlinePlayers()) {
-                if (isvanished) {
+                if (vanishedPlayers.getOrDefault(player.getUniqueId(), false)) {
                     player.showPlayer(BlazeSMP.getInstance(), online);
-                    online.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.join")));
+                    online.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.join")).append(player.playerListName()));
                 } else {
                     player.hidePlayer(BlazeSMP.getInstance(), online);
-                    online.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.left")));
+                    online.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.left")).append(player.playerListName()));
                 }
             }
-            if (isvanished) {
-                vanishedPlayers.remove(player.getUniqueId());
+            if (vanishedPlayers.getOrDefault(player.getUniqueId(), false)) {
+                vanishedPlayers.put(player.getUniqueId(), false);
             } else {
-                vanishedPlayers.add(player.getUniqueId());
+                vanishedPlayers.put(player.getUniqueId(), true);
             }
         } else {
             player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.no_permission")));
             return false;
         }
 
-        isvanished = !isvanished;
         return true;
     }
 
