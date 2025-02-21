@@ -26,6 +26,7 @@ public final class BlazeSMP extends JavaPlugin {
     @Getter private Logger log;
     @Getter private BukkitTask nameUpdateTask;
     @Getter private BukkitTask tabListUpdateTask;
+    private boolean isEndOpen;
 
 
     @Override
@@ -123,5 +124,12 @@ public final class BlazeSMP extends JavaPlugin {
         this.log.info("Cleared Teams!");
 
         this.log.info("Disabling BlazeSMP!");
+    }
+    public boolean isEndOpen() {
+        return isEndOpen;
+    }
+
+    public void setEndOpen(boolean endOpen) {
+        isEndOpen = endOpen;
     }
 }
