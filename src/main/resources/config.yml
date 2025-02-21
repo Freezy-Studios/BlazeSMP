@@ -1,4 +1,5 @@
 op-prefix: '<color:dark_gray>[</color><gradient:#ffa600:#ffb700><b>Team</b></gradient><color:dark_gray>]</color> '
 player-prefix: '<color:dark_gray>[</color><gradient:#747e80:#828d8f><b>Player</b></gradient><color:dark_gray>]</color> '
-discord-report-webhook: 'https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz'
+discord-report-webhook: ''
+discord-url: 'https://discord.gg/cww2YDt2bx'
 tab_update_interval: 5 #Seconds
