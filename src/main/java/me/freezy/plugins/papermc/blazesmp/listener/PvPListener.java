@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -18,10 +19,16 @@ public class PvPListener implements Listener {
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.GERMAN);
             String formattedNow = now.format(formatter);
+            // Optional: Logge oder benutze formattedNow, falls benötigt
 
-            if (now.getYear() == 2025 && now.getMonth() == Month.FEBRUARY && now.getDayOfMonth() == 23 &&
-                now.getHour() >= 17 && (now.getHour() < 20 || (now.getHour() == 20 && now.getMinute() == 0))) {
-                event.setCancelled(true);
+            if (now.getYear() == 2025 && now.getMonth() == Month.FEBRUARY && now.getDayOfMonth() == 23) {
+                LocalTime currentTime = now.toLocalTime();
+                LocalTime startTime = LocalTime.of(17, 30);
+                LocalTime endTime = LocalTime.of(20, 0);
+                // Prüft, ob die aktuelle Uhrzeit zwischen 17:30 und 20:00 liegt (inklusive beider Grenzen)
+                if (!currentTime.isBefore(startTime) && !currentTime.isAfter(endTime)) {
+                    event.setCancelled(true);
+                }
             }
         }
     }
