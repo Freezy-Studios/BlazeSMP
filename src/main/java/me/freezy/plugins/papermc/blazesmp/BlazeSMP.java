@@ -2,6 +2,7 @@ package me.freezy.plugins.papermc.blazesmp;
 
 import lombok.Getter;
 import me.freezy.plugins.papermc.blazesmp.command.*;
+import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
 import me.freezy.plugins.papermc.blazesmp.listener.*;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Homes;
@@ -29,80 +30,86 @@ public final class BlazeSMP extends JavaPlugin {
     private boolean isEndOpen;
 
     @Override
-    public void onLoad() {
-        this.log = getSLF4JLogger();
+public void onLoad() {
+    this.log = getSLF4JLogger();
 
-        this.log.info("Loading BlazeSMP...");
+    this.log.info("Loading BlazeSMP...");
 
-        this.log.info("Loading ProtectedBlocks...");
-        this.protectedBlocks = new ProtectedBlocks();
-        this.protectedBlocks.load();
-        this.log.info("Loaded ProtectedBlocks!");
+    this.log.info("Loading ProtectedBlocks...");
+    this.protectedBlocks = new ProtectedBlocks();
+    this.protectedBlocks.load();
+    this.log.info("Loaded ProtectedBlocks!");
 
-        this.log.info("Loading config...");
-        saveDefaultConfig();
-        this.configuration = getConfig();
-        saveConfig();
-        this.log.info("Loaded config!");
+    this.log.info("Loading config...");
+    saveDefaultConfig();
+    this.configuration = getConfig();
+    saveConfig();
+    this.log.info("Loaded config!");
 
-        this.log.info("Loading L4M4...");
-        L4M4.init();
-        this.log.info("Loaded L4M4!");
+    this.log.info("Loading L4M4...");
+    L4M4.init();
+    this.log.info("Loaded L4M4!");
 
-        this.log.info("Loaded BlazeSMP!");
-    }
+    this.log.info("Loaded BlazeSMP!");
+}
 
-    @Override
-    public void onEnable() {
-        BlazeSMP.instance = this;
-        isEndOpen = getConfig().getBoolean("isEndOpen", false);
+@Override
+public void onEnable() {
+    BlazeSMP.instance = this;
+    isEndOpen = getConfig().getBoolean("isEndOpen", false);
 
-        this.log.info("Enabling BlazeSMP...");
+    this.log.info("Enabling BlazeSMP...");
 
-        this.getServer().getScheduler().runTaskLater(this, () -> {
-            this.log.info("Loading Clans...");
-            this.clans = new Clans();
-            this.clans.loadAllClans();
-            this.log.info("Loaded Clans!");
 
-            this.log.info("Loading Homes...");
-            this.homes = new Homes();
-            this.homes.load();
-            this.log.info("Loaded Homes!");
-        }, 20L);
 
-        this.log.info("Registering Commands...");
-        new ClanCommand().register();
-        new ReportCommand().register();
-        new ClaimCommand().register();
-        new HomeCommand().register();
-        new DiscordCommand().register();
-        new ReloadCommand().register();
-        new VanishCommand().register();
-        new EventCommand(this).register();
-        this.log.info("Registered Commands!");
+    this.getServer().getScheduler().runTaskLater(this, () -> {
+        this.log.info("Loading Homes...");
+        this.homes = new Homes();
+        this.homes.load();
+        this.log.info("Loaded Homes!");
+    }, 20L);
 
-        this.log.info("Registering EventListeners...");
-        PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new PlayerJoinListener(), this);
-        pm.registerEvents(new PlayerChatListener(), this);
-        pm.registerEvents(new PlayerCommandBlockerListener(), this);
-        pm.registerEvents(new PlayerClaimListener(), this);
-        pm.registerEvents(new ChunkInventoryListener(), this);
-        pm.registerEvents(new PressurePlateListener(), this);
-        pm.registerEvents(new PlayerVsPlayerListener(clans), this);
-        pm.registerEvents(new EndPortalListener(this), this);
-        pm.registerEvents(new PvPListener(), this);
-        //pm.registerEvents(new ProtectedBlockListener(), this);
-        this.log.info("Registered EventListeners!");
+    this.getServer().getScheduler().runTaskLater(this, () -> {
+        this.log.info("Loading Clans...");
+        this.clans = new Clans();
+        this.clans.loadAllClans();
+        this.log.info("Loaded Clans!");
+    }, 40L);
 
-        this.log.info("Starting Timer tasks...");
-        this.nameUpdateTask = new PlayerNameUpdate().runTaskTimer(this, 0L, 20L);
-        this.tabListUpdateTask = new TabListTimer().runTaskTimer(this, 0L, 20L);
-        this.log.info("Started Timer tasks!");
+    this.log.info("Registering Commands...");
+    new ClanCommand().register();
+    new ReportCommand().register();
+    new ClaimCommand().register();
+    new HomeCommand().register();
+    new DiscordCommand().register();
+    new ReloadCommand().register();
+    new VanishCommand().register();
+    new EventCommand(this).register();
+    new RestartCommand().register();
+    this.log.info("Registered Commands!");
 
-        this.log.info("Enabled BlazeSMP!");
-    }
+    this.log.info("Registering EventListeners...");
+    PluginManager pm = getServer().getPluginManager();
+    pm.registerEvents(new PlayerJoinListener(), this);
+    pm.registerEvents(new PlayerChatListener(), this);
+    pm.registerEvents(new PlayerCommandBlockerListener(), this);
+    pm.registerEvents(new PlayerClaimListener(), this);
+    pm.registerEvents(new ChunkInventoryListener(), this);
+    pm.registerEvents(new PressurePlateListener(), this);
+    pm.registerEvents(new PlayerVsPlayerListener(clans), this);
+    pm.registerEvents(new EndPortalListener(this), this);
+    pm.registerEvents(new PvPListener(), this);
+    pm.registerEvents(new PlayerQuitListener(), this);
+    //pm.registerEvents(new ProtectedBlockListener(), this);
+    this.log.info("Registered EventListeners!");
+
+    this.log.info("Starting Timer tasks...");
+    this.nameUpdateTask = new PlayerNameUpdate().runTaskTimer(this, 0L, 20L);
+    this.tabListUpdateTask = new TabListTimer().runTaskTimer(this, 0L, 20L);
+    this.log.info("Started Timer tasks!");
+
+    this.log.info("Enabled BlazeSMP!");
+}
 
     @Override
     public void onDisable() {

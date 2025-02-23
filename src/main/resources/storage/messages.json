@@ -30,6 +30,8 @@
   "error.max_claims_reached": "<red>You cannot claim more than 50 chunks!</red>",
   "error.chunk_too_close_to_spawn": "<red>Chunk is too close to spawn!</red>",
   "error.not_found": "<red>Not Found</red>",
+  "error.no_reason": "<red>Please provide a reason for the restart.</red>",
+  "error.no_permission": "<red>You can't do this.</red>",
 
   "usage.clan_create": "<red>Usage: /clan create <name> <tag></red>",
   "usage.clan_chat": "<red>Usage: /clan chat <message></red>",
@@ -126,8 +128,11 @@
     "<b><gold>BlazeSMP</gold></b>"
   ],
   "tablist.footer": [
-      "<aqua>hosted by merged.games</aqua>",
-      "<c:gray>made by BlazeGHC Team</c>"
+    "<aqua>hosted by merged.games</aqua>",
+    "<aqua>hosted by merged.games</aqua>",
+    "<c:gray>made by BlazeGHC Team</c>",
+    "<c:gray>made by BlazeGHC Team</c>",
+    "<c:gray>made by BlazeGHC Team</c>"
   ],
 
   "storage.locked": "<red>This storage is locked! You need a <yellow>%s</yellow> to open it.</red>",
@@ -147,8 +152,8 @@
 
   "config.reloaded": "<green>Config reloaded!</green>",
   "error.clan_full": "<red>The clan is full.</red>",
-  "success.invite_sent": "<green>Invite sent to %s.</green>",
-  "error.no_permission": "<red>You can't do this.</red>",
-  "join.notify": "<green>WICHTIG!!! Die Clans wurden aufgelöst, das aktuelle Clanlimit liegt bei 10 Membern. Jeder hat damit die Chance einen neuen Clan selbst zu gründen, da die großen Clans keine unendliche Kapazität mehr haben.</green>"
+  "join.notify": "<green>WICHTIG!!! Die Clans wurden aufgelöst, das aktuelle Clanlimit liegt bei 10 Membern. Jeder hat damit die Chance einen neuen Clan selbst zu gründen, da die großen Clans keine unendliche Kapazität mehr haben.</green>",
+  "success.chunk_unclaimed": "<green>Chunk successfully unclaimed!</green>",
+  "error.chunk_not_owned": "<red>You do not own this chunk!</red>"
 
 }
