@@ -3,6 +3,7 @@ package me.freezy.plugins.papermc.blazesmp.command;
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
 import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -31,9 +32,9 @@ public class RestartCommand extends SimpleCommand {
         }
 
         String reason = String.join(" ", args);
-        String kickMessage = MiniMessage.miniMessage().deserialize(reason).toString();
+        Component kickMessage = MiniMessage.miniMessage().deserialize(reason);
 
-        Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(kickMessage));
+        Bukkit.getOnlinePlayers().forEach(player -> player.kick(kickMessage));
 
         Bukkit.getScheduler().runTaskLater(BlazeSMP.getInstance(), Bukkit::shutdown, 60L); // 3 seconds later (60 ticks)
 

@@ -58,57 +58,53 @@ public void onEnable() {
     BlazeSMP.instance = this;
     isEndOpen = getConfig().getBoolean("isEndOpen", false);
 
-    this.log.info("Enabling BlazeSMP...");
-
-
-
     this.getServer().getScheduler().runTaskLater(this, () -> {
+        this.log.info("Enabling BlazeSMP...");
+
         this.log.info("Loading Homes...");
         this.homes = new Homes();
         this.homes.load();
         this.log.info("Loaded Homes!");
-    }, 20L);
 
-    this.getServer().getScheduler().runTaskLater(this, () -> {
         this.log.info("Loading Clans...");
         this.clans = new Clans();
         this.clans.loadAllClans();
         this.log.info("Loaded Clans!");
-    }, 40L);
 
-    this.log.info("Registering Commands...");
-    new ClanCommand().register();
-    new ReportCommand().register();
-    new ClaimCommand().register();
-    new HomeCommand().register();
-    new DiscordCommand().register();
-    new ReloadCommand().register();
-    new VanishCommand().register();
-    new EventCommand(this).register();
-    new RestartCommand().register();
-    this.log.info("Registered Commands!");
+        this.log.info("Registering Commands...");
+        new ClanCommand().register();
+        new ReportCommand().register();
+        new ClaimCommand().register();
+        new HomeCommand().register();
+        new DiscordCommand().register();
+        new ReloadCommand().register();
+        new VanishCommand().register();
+        new EventCommand(this).register();
+        new RestartCommand().register();
+        this.log.info("Registered Commands!");
 
-    this.log.info("Registering EventListeners...");
-    PluginManager pm = getServer().getPluginManager();
-    pm.registerEvents(new PlayerJoinListener(), this);
-    pm.registerEvents(new PlayerChatListener(), this);
-    pm.registerEvents(new PlayerCommandBlockerListener(), this);
-    pm.registerEvents(new PlayerClaimListener(), this);
-    pm.registerEvents(new ChunkInventoryListener(), this);
-    pm.registerEvents(new PressurePlateListener(), this);
-    pm.registerEvents(new PlayerVsPlayerListener(clans), this);
-    pm.registerEvents(new EndPortalListener(this), this);
-    pm.registerEvents(new PvPListener(), this);
-    pm.registerEvents(new PlayerQuitListener(), this);
-    //pm.registerEvents(new ProtectedBlockListener(), this);
-    this.log.info("Registered EventListeners!");
+        this.log.info("Registering EventListeners...");
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new PlayerJoinListener(), this);
+        pm.registerEvents(new PlayerChatListener(), this);
+        pm.registerEvents(new PlayerCommandBlockerListener(), this);
+        pm.registerEvents(new PlayerClaimListener(), this);
+        pm.registerEvents(new ChunkInventoryListener(), this);
+        pm.registerEvents(new PressurePlateListener(), this);
+        pm.registerEvents(new PlayerVsPlayerListener(clans), this);
+        pm.registerEvents(new EndPortalListener(this), this);
+        pm.registerEvents(new PvPListener(), this);
+        pm.registerEvents(new PlayerQuitListener(), this);
+        //pm.registerEvents(new ProtectedBlockListener(), this);
+        this.log.info("Registered EventListeners!");
 
-    this.log.info("Starting Timer tasks...");
-    this.nameUpdateTask = new PlayerNameUpdate().runTaskTimer(this, 0L, 20L);
-    this.tabListUpdateTask = new TabListTimer().runTaskTimer(this, 0L, 20L);
-    this.log.info("Started Timer tasks!");
+        this.log.info("Starting Timer tasks...");
+        this.nameUpdateTask = new PlayerNameUpdate().runTaskTimer(this, 0L, 20L);
+        this.tabListUpdateTask = new TabListTimer().runTaskTimer(this, 0L, 20L);
+        this.log.info("Started Timer tasks!");
 
-    this.log.info("Enabled BlazeSMP!");
+        this.log.info("Enabled BlazeSMP!");
+    }, 20L);
 }
 
     @Override

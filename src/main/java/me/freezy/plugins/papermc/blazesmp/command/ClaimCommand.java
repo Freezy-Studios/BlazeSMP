@@ -53,18 +53,15 @@ public class ClaimCommand extends SimpleCommand {
                 int MAX_CLAIMS = 50;
                 if (playerClaims.size() >= MAX_CLAIMS) {
                     player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.max_claims_reached")));
-                    System.out.println("Claim denied: max claims reached");
                 } else {
                     Chunk playerChunk = player.getLocation().getChunk();
                     if (clans.isChunkClaimed(playerChunk)) {
                         player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.chunk_already_claimed")));
-                        System.out.println("Claim denied: chunk already claimed");
                     } else {
                         // claim too close to spawn 8 chunks
                         // claim too close to spawn 152 blocks in all directions
                         if (Math.abs(player.getX()) < 152.0 && Math.abs(player.getZ()) < 152.0) {
                             player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.chunk_too_close_to_spawn")));
-                            System.out.println("Claim denied: chunk too close to spawn");
                             return true;
                         }
                         playerClaims.add(playerChunk);
@@ -73,7 +70,6 @@ public class ClaimCommand extends SimpleCommand {
                         clans.setClanChunks(playerClan, existingClaims);
                         playerClan.save();
                         clans.saveAllClans();
-                        System.out.println("Chunk claimed successfully");
                     }
                 }
                 return true;
@@ -90,10 +86,8 @@ public class ClaimCommand extends SimpleCommand {
                         clans.setClanChunks(playerClan, existingClaims);
                         playerClan.save();
                         clans.saveAllClans();
-                        System.out.println("Chunk unclaimed successfully");
                     } else {
                         player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.chunk_not_owned")));
-                        System.out.println("Unclaim denied: chunk not owned");
                     }
                     return true;
                 }
