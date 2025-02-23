@@ -36,10 +36,10 @@ public class VanishCommand extends SimpleCommand {
         if (player.isOp()) {
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (vanishedPlayers.getOrDefault(player.getUniqueId(), false)) {
-                    player.showPlayer(BlazeSMP.getInstance(), online);
+                    online.showPlayer(BlazeSMP.getInstance(), player);
                     online.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.join")).append(player.playerListName()));
                 } else {
-                    player.hidePlayer(BlazeSMP.getInstance(), online);
+                    online.hidePlayer(BlazeSMP.getInstance(), player);
                     online.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("player.left")).append(player.playerListName()));
                 }
             }
