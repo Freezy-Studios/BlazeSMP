@@ -32,7 +32,6 @@
   "error.not_found": "<red>Not Found</red>",
   "error.no_reason": "<red>Please provide a reason for the restart.</red>",
   "error.no_permission": "<red>You can't do this.</red>",
-
   "usage.clan_create": "<red>Usage: /clan create <name> <tag></red>",
   "usage.clan_chat": "<red>Usage: /clan chat <message></red>",
   "usage.clan_join": "<red>Usage: /clan join <clanName></red>",
@@ -46,7 +45,6 @@
   "usage.clan_promote": "<red>Usage: /clan promote <playerName></red>",
   "usage.clan_demote": "<red>Usage: /clan demote <playerName></red>",
   "usage.clan_modify": "<red>Usage: /clan modify <name|tag> <newValue></red>",
-
   "success.clan_created": "<green>Clan created successfully!</green>",
   "success.join_request_sent": "<green>Join request sent to clan %s!</green>",
   "success.invite_sent": "<green>Invite sent to %s.</green>",
@@ -63,20 +61,14 @@
   "success.clan_disbanded_leave": "<green>You have disbanded your clan (no other members) and left.</green>",
   "success.left_clan": "<green>You have left the clan %s.</green>",
   "success.chunk_claimed": "<green>Successfully claimed the chunk!</green>",
-
   "notification.invite": "<yellow>Invite from clan %s.</yellow>",
-
-
   "button.accept": "<green>[Accept]</green>",
   "button.deny": "<red>[Deny]</red>",
-
   "help.leader": "<color:#c70088>=== Clan Commands ===</color>\n<color:#c70088>-</color> <hover:show_text:'Displays clan info'><click:run_command:'/clan info'><color:#10abc7>/clan info</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Invite a player'><click:run_command:'/clan invite'><color:#10abc7>/clan invite</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Kick a player'><click:run_command:'/clan kick'><color:#10abc7>/clan kick</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Transfer leadership'><click:run_command:'/clan transfer'><color:#10abc7>/clan transfer</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Promote a member'><click:run_command:'/clan promote'><color:#10abc7>/clan promote</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Demote the vice leader'><click:run_command:'/clan demote'><color:#10abc7>/clan demote</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Disband your clan'><click:run_command:'/clan disband'><color:#10abc7>/clan disband</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Leave your clan'><click:run_command:'/clan leave'><color:#10abc7>/clan leave</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Accept a join request'><click:run_command:'/clan accept'><color:#10abc7>/clan accept</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Deny a join request'><click:run_command:'/clan deny'><color:#10abc7>/clan deny</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Modify clan name or tag'><click:run_command:'/clan modify'><color:#10abc7>/clan modify</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Show a list of all clans'><click:run_command:'/clan list'><color:#10abc7>/clan list</color></click></hover>\n<color:#c70088>=====================</color>",
   "help.vice": "<color:#c70088>=== Clan Commands ===</color>\n<color:#c70088>-</color> <hover:show_text:'Displays clan info'><click:run_command:'/clan info'><color:#10abc7>/clan info</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Invite a player'><click:run_command:'/clan invite'><color:#10abc7>/clan invite</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Kick a player'><click:run_command:'/clan kick'><color:#10abc7>/clan kick</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Demote the vice leader'><click:run_command:'/clan demote'><color:#10abc7>/clan demote</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Leave your clan'><click:run_command:'/clan leave'><color:#10abc7>/clan leave</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Accept a join request'><click:run_command:'/clan accept'><color:#10abc7>/clan accept</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Deny a join request'><click:run_command:'/clan deny'><color:#10abc7>/clan deny</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Show a list of all clans'><click:run_command:'/clan list'><color:#10abc7>/clan list</color></click></hover>\n<color:#c70088>=====================</color>",
   "help.member": "<color:#c70088>=== Clan Commands ===</color>\n<color:#c70088>-</color> <hover:show_text:'Displays clan info'><click:run_command:'/clan info'><color:#10abc7>/clan info</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Leave your clan'><click:run_command:'/clan leave'><color:#10abc7>/clan leave</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Show a list of all clans'><click:run_command:'/clan list'><color:#10abc7>/clan list</color></click></hover>\n<color:#c70088>=====================</color>",
   "help.none": "<color:#c70088>=== Clan Commands ===</color>\n<color:#c70088>-</color> <hover:show_text:'Create a clan'><click:run_command:'/clan create'><color:#10abc7>/clan create</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Join a clan'><click:run_command:'/clan join'><color:#10abc7>/clan join</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Accept a clan invite'><click:run_command:'/clan accept'><color:#10abc7>/clan accept</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Deny a clan invite'><click:run_command:'/clan deny'><color:#10abc7>/clan deny</color></click></hover>\n<color:#c70088>-</color> <hover:show_text:'Show a list of all clans'><click:run_command:'/clan list'><color:#10abc7>/clan list</color></click></hover>\n<color:#c70088>=====================</color>",
-
   "chat.format": "<color:#10abc7>[Clan] %s:</color> <color:#ff8800>%s</color>",
-
   "info.header": "<color:#c70088>=== Clan info ===</color>\n",
   "info.uuid": "  <color:#c70088>-</color> <hover:show_text:'Unique identifier'><color:#10abc7>ID:</color></hover> <color:#ff8800>%s</color>\n",
   "info.name": "  <color:#c70088>-</color> <hover:show_text:'Name'><color:#10abc7>Name:</color></hover> <color:#ff8800>%s</color>\n",
@@ -91,7 +83,6 @@
   "home.sethome.success": "<green>Home set!</green>",
   "home.delhome.success": "<red>Home removed!</red>",
   "home.teleport.start": "<yellow>Teleporting to home!</yellow>",
-
   "report.error.not_a_player": "<b><i><color:#ff002f>Du darfst das nicht</color></i></b>",
   "report.usage": "<i><color:#ff0048>Benutze bitte:</color> <color:#ff00ee>/report</color> <blue><Spieler></blue> <dark_green><Grund></dark_green></i>",
   "report.error.invalid_player": "<color:#ff002f>Der Spieler existiert nicht oder war noch nie online!</color>",
@@ -102,28 +93,21 @@
   "report.discord.field.reporter": "Reporter",
   "report.discord.field.reported": "Gemeldeter Spieler",
   "report.discord.field.reason": "Grund",
-
   "chunk.error.no_clan": "<red>You are not in a clan!</red>",
   "chunk.title": "<gold>Clan Chunks</gold>",
   "chunk.navigation.previous": "<green>Previous Page</green>",
   "chunk.navigation.next": "<green>Next Page</green>",
   "chunk.clicked": "<yellow>You clicked on Chunk item: %s.</yellow>",
   "chunk.unclaim_lore": "<gray>Click to unclaim!</gray>",
-
   "claim.entered": "<red>You entered the claim of <white>%s</white>!</red>",
   "claim.territory": "<red>Territory of <white>%s</white> - <white>%s</white>!</red>",
-
   "command.blocked": "<red>Unknown or incomplete command, see below for error\n<u>%s</u><i> <--[HERE]</i>",
-
   "player.join": "<gray>[<green>+</green>]</gray> <reset>",
   "player.left": "<gray>[<red>-</red>]</gray> <reset>",
-
   "pressureplate.teleport": "<red>You need to wait 5 seconds to be teleported.</red>",
-
   "teleport.cancelled": "<red>Teleporting cancelled, you moved!</red>",
   "teleport.success": "<green>Teleported!</green>",
   "teleport.countdown": "<yellow>Teleporting to home in %s seconds!</yellow>",
-
   "tablist.header": [
     "<b><gold>BlazeSMP</gold></b>"
   ],
@@ -134,7 +118,6 @@
     "<c:gray>made by BlazeGHC Team</c>",
     "<c:gray>made by BlazeGHC Team</c>"
   ],
-
   "storage.locked": "<red>This storage is locked! You need a <yellow>%s</yellow> to open it.</red>",
   "storage.lock_gui_title": "<blue>Lock & Link Storage - %s</blue>",
   "storage.lock_gui_title_prefix": "<blue>Lock & Link Storage</blue>",
@@ -149,11 +132,10 @@
   "storage.removed_lock": "<green>You removed the lock from this storage.</green>",
   "storage.break_denied": "<red>You cannot break this locked storage!</red>",
   "storage.trial_key": "<gold>Linked Trial Key</gold>",
-
   "config.reloaded": "<green>Config reloaded!</green>",
   "error.clan_full": "<red>The clan is full.</red>",
   "join.notify": "<green>WICHTIG!!! Die Clans wurden aufgelöst, das aktuelle Clanlimit liegt bei 10 Membern. Jeder hat damit die Chance einen neuen Clan selbst zu gründen, da die großen Clans keine unendliche Kapazität mehr haben.</green>",
   "success.chunk_unclaimed": "<green>Chunk successfully unclaimed!</green>",
-  "error.chunk_not_owned": "<red>You do not own this chunk!</red>"
-
+  "error.chunk_not_owned": "<red>You do not own this chunk!</red>",
+  "error.bed_place_in_end": "<red>You cannot place beds in the end!</red>"
 }
