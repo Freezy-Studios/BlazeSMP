@@ -17,9 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class VanishCommand extends SimpleCommand {
-    private final Map<UUID, Boolean> vanishedPlayers = new HashMap();
-
-
+    private final Map<UUID, Boolean> vanishedPlayers = new HashMap<>();
 
 
     public VanishCommand() {

@@ -43,7 +43,8 @@ public class Homes {
         }
         try (FileReader reader = new FileReader(file)) {
             // Use a TypeToken to handle the Map<String, LocationJson> structure
-            Type type = new TypeToken<Map<String, LocationJson>>() {}.getType();
+            Type type = new TypeToken<Map<String, LocationJson>>() {
+            }.getType();
             Map<String, LocationJson> jsonMap = GSON.fromJson(reader, type);
             if (jsonMap == null) {
                 return;
@@ -58,17 +59,19 @@ public class Homes {
                 }
                 LocationJson locJson = entry.getValue();
                 // Assume the default world "world" for homes
-                World world = Bukkit.getWorld("world");
-                if (world == null) {
-                    LOGGER.warning("Default world 'world' not found. Skipping home for " + uuid);
-                    continue;
-                }
+
                 try {
                     double x = Double.parseDouble(locJson.x);
                     double y = Double.parseDouble(locJson.y);
                     double z = Double.parseDouble(locJson.z);
                     float yaw = Float.parseFloat(locJson.yaw);
                     float pitch = Float.parseFloat(locJson.pitch);
+                    String worldName = locJson.world;
+                    World world = Bukkit.getWorld(worldName);
+                    if (world == null) {
+                        LOGGER.warning("World '%s' not found. Skipping home for %s".formatted(worldName, uuid));
+                        continue;
+                    }
                     Location location = new Location(world, x, y, z, yaw, pitch);
                     homes.put(uuid, location);
                 } catch (NumberFormatException ex) {
@@ -94,6 +97,7 @@ public class Homes {
             locJson.z = String.valueOf(location.getZ());
             locJson.yaw = String.valueOf(location.getYaw());
             locJson.pitch = String.valueOf(location.getPitch());
+            locJson.world = location.getWorld().getName();
             jsonMap.put(entry.getKey().toString(), locJson);
         }
         File file = new File(FILE_PATH);
@@ -138,5 +142,6 @@ public class Homes {
         String z;
         String yaw;
         String pitch;
+        String world;
     }
 }
