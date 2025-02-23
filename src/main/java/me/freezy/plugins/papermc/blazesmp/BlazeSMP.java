@@ -39,11 +39,6 @@ public final class BlazeSMP extends JavaPlugin {
         this.protectedBlocks.load();
         this.log.info("Loaded ProtectedBlocks!");
 
-        this.log.info("Loading Clans...");
-        this.clans = new Clans();
-        this.clans.loadAllClans();
-        this.log.info("Loaded Clans!");
-
         this.log.info("Loading config...");
         saveDefaultConfig();
         this.configuration = getConfig();
@@ -64,10 +59,17 @@ public final class BlazeSMP extends JavaPlugin {
 
         this.log.info("Enabling BlazeSMP...");
 
-        this.log.info("Loading Homes...");
-        this.homes = new Homes();
-        this.homes.load();
-        this.log.info("Loaded Homes!");
+        this.getServer().getScheduler().runTaskLater(this, () -> {
+            this.log.info("Loading Clans...");
+            this.clans = new Clans();
+            this.clans.loadAllClans();
+            this.log.info("Loaded Clans!");
+
+            this.log.info("Loading Homes...");
+            this.homes = new Homes();
+            this.homes.load();
+            this.log.info("Loaded Homes!");
+        }, 20L);
 
         this.log.info("Registering Commands...");
         new ClanCommand().register();
