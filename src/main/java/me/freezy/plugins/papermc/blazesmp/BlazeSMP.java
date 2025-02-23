@@ -16,7 +16,12 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Team;
 import org.slf4j.Logger;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 public final class BlazeSMP extends JavaPlugin {
+    LocalDateTime now = LocalDateTime.now();
+    LocalTime currentTime = now.toLocalTime();
     @Getter
     private static BlazeSMP instance;
     @Getter
@@ -57,6 +62,8 @@ public final class BlazeSMP extends JavaPlugin {
         this.log.info("Loaded L4M4!");
 
         this.log.info("Loaded BlazeSMP!");
+
+        this.log.error(currentTime.toString());
     }
 
     @Override

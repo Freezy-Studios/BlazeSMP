@@ -23,8 +23,8 @@ public class PvPListener implements Listener {
 
             if (now.getYear() == 2025 && now.getMonth() == Month.FEBRUARY && now.getDayOfMonth() == 23) {
                 LocalTime currentTime = now.toLocalTime();
-                LocalTime startTime = LocalTime.of(17, 30);
-                LocalTime endTime = LocalTime.of(20, 0);
+                LocalTime startTime = LocalTime.of(16, 30);
+                LocalTime endTime = LocalTime.of(19, 0);
                 // Prüft, ob die aktuelle Uhrzeit zwischen 17:30 und 20:00 liegt (inklusive beider Grenzen)
                 if (!currentTime.isBefore(startTime) && !currentTime.isAfter(endTime)) {
                     event.setCancelled(true);
