@@ -91,6 +91,8 @@ public final class BlazeSMP extends JavaPlugin {
         pm.registerEvents(new ChunkInventoryListener(), this);
         pm.registerEvents(new PressurePlateListener(), this);
         pm.registerEvents(new PlayerVsPlayerListener(clans), this);
+        pm.registerEvents(new EndPortalListener(this), this);
+        pm.registerEvents(new PvPListener(), this);
         //pm.registerEvents(new ProtectedBlockListener(), this);
         this.log.info("Registered EventListeners!");
 
