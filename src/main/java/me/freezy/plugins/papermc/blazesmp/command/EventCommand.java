@@ -70,10 +70,8 @@ public class EventCommand extends SimpleCommand {
                         ));
                     });
                 }, 10 * 20L);
-                return true;
-            } else {
-                return true;
             }
+            return true;
         }
         return false;
     }
