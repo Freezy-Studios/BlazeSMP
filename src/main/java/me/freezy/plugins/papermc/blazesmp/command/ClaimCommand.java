@@ -2,7 +2,7 @@ package me.freezy.plugins.papermc.blazesmp.command;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.command.util.SimpleCommand;
-import me.freezy.plugins.papermc.blazesmp.listener.ChunkInventoryManager;
+import me.freezy.plugins.papermc.blazesmp.listener.ChunkInventoryListener;
 import me.freezy.plugins.papermc.blazesmp.module.Clan;
 import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
@@ -14,7 +14,10 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 public class ClaimCommand extends SimpleCommand {
 
@@ -38,7 +41,7 @@ public class ClaimCommand extends SimpleCommand {
         } else {
             if (label.equalsIgnoreCase("claim")) {
                 if (args.length != 0 && args[0].equalsIgnoreCase("see")) {
-                    ChunkInventoryManager.openInv(player);
+                    ChunkInventoryListener.openInv(player);
                     return true;
                 }
                 Clan playerClan = clans.getClanByMember(playerUUID);
@@ -55,6 +58,12 @@ public class ClaimCommand extends SimpleCommand {
                     if (clans.isChunkClaimed(playerChunk)) {
                         player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.chunk_already_claimed")));
                     } else {
+                        // claim too close to spawn 8 chunks
+                        // claim too close to spawn 152 blocks in all directions
+                        if (Math.abs(player.getX()) < 152.0 && Math.abs(player.getZ()) < 152.0) {
+                            player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("error.chunk_too_close_to_spawn")));
+                            return true;
+                        }
                         playerClaims.add(playerChunk);
                         player.sendMessage(MiniMessage.miniMessage().deserialize(L4M4.get("success.chunk_claimed")));
                         existingClaims.put(playerUUID, playerClaims);

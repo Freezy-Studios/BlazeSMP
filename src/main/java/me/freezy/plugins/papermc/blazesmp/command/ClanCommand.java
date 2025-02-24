@@ -130,6 +130,10 @@ public class ClanCommand extends SimpleCommand {
                     player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
+                if (targetClan.getMembers().size() >= 10) {
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_full")));
+                    return true;
+                }
                 clanJoins.computeIfAbsent(targetClan, k -> new LinkedList<>());
                 LinkedList<UUID> joinRequests = clanJoins.get(targetClan);
                 if (joinRequests.contains(playerUUID)) {
@@ -140,7 +144,6 @@ public class ClanCommand extends SimpleCommand {
                 player.sendMessage(miniMessage().deserialize(
                         String.format(L4M4.get("success.join_request_sent"), targetClan.getName())
                 ));
-                // Benachrichtige den Clan-Leader, sofern online
                 Player leader = Bukkit.getPlayer(targetClan.getLeaderUUID());
                 if (leader != null && leader.isOnline()) {
                     String acceptCommand = "/clan accept " + player.getName();
@@ -189,6 +192,10 @@ public class ClanCommand extends SimpleCommand {
                     player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
                     return true;
                 }
+                if (inviterClan.getMembers().size() >= 10) {
+                    player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_full")));
+                    return true;
+                }
                 clanInvites.computeIfAbsent(inviterClan, k -> new LinkedList<>());
                 LinkedList<UUID> inviteList = clanInvites.get(inviterClan);
                 if (inviteList.contains(invitee.getUniqueId())) {
@@ -201,7 +208,6 @@ public class ClanCommand extends SimpleCommand {
                 player.sendMessage(miniMessage().deserialize(
                         String.format(L4M4.get("success.invite_sent"), inviteeName)
                 ));
-                // Benachrichtige den Eingeladenen
                 String acceptCmd = "/clan accept " + inviterClan.getName();
                 String denyCmd = "/clan deny " + inviterClan.getName();
                 String inviteNotifyText = String.format(L4M4.get("notification.invite"), inviterClan.getName());
@@ -504,12 +510,10 @@ public class ClanCommand extends SimpleCommand {
                     player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("error.player_not_in_clan"), newLeaderName)));
                     return true;
                 }
-                if (!currentClan.getMembers().contains(playerUUID)) {
-                    currentClan.getMembers().add(playerUUID);
-                }
+
                 currentClan.setLeaderUUID(newLeaderUUID);
                 if (currentClan.isVice(newLeaderUUID)) {
-                    currentClan.setViceUUID(null);
+                    currentClan.setViceUUID(playerUUID);
                 }
                 currentClan.save();
                 player.sendMessage(miniMessage().deserialize(String.format(L4M4.get("success.leadership_transferred"), newLeaderName)));

@@ -2,31 +2,21 @@ package me.freezy.plugins.papermc.blazesmp.listener;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.scoreboard.Team;
 
 public class PlayerChatListener implements Listener {
     @EventHandler
     public void onChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
-        Team team = player.getScoreboard().getEntryTeam(player.getName());
 
-        Component prefix = Component.empty();
-        Component suffix = Component.empty();
-
-        if (team != null) {
-            prefix = team.prefix();
-            suffix = team.suffix();
-        }
-
-        Component messageComponent = event.message();
+        Component messageComponent = MiniMessage.miniMessage().deserialize(PlainTextComponentSerializer.plainText().serialize(event.message()));
 
         Component chatComponent = Component.empty()
-                //.append(prefix)
-                .append(player.teamDisplayName())
-                //.append(suffix)
+                .append(player.playerListName())
                 .append(Component.text(": "))
                 .append(messageComponent);
 

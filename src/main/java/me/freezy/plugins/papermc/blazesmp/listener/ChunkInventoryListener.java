@@ -2,6 +2,7 @@ package me.freezy.plugins.papermc.blazesmp.listener;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.module.Clan;
+import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -19,7 +20,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.*;
 
-public class ChunkInventoryManager implements Listener {
+public class ChunkInventoryListener implements Listener {
 
     // Speichert pro Spieler den aktuellen Seitenindex
     private final PaginatedData paginatedData = new PaginatedData();
@@ -32,7 +33,7 @@ public class ChunkInventoryManager implements Listener {
             ));
             return;
         }
-        new ChunkInventoryManager().chunksInv(player, clan);
+        new ChunkInventoryListener().chunksInv(player, clan);
     }
 
     /**
@@ -89,6 +90,7 @@ public class ChunkInventoryManager implements Listener {
             Component itemName = MiniMessage.miniMessage().deserialize("<aqua>Chunk [" + chunk.getX() + ", " + chunk.getZ() + "]</aqua>");
             skullMeta.displayName(itemName);
             List<Component> lore = new ArrayList<>();
+            lore.add(MiniMessage.miniMessage().deserialize(L4M4.get("chunk.unclaim_lore")));
             lore.add(MiniMessage.miniMessage().deserialize("<gray>World: " + chunk.getWorld().getName() + "</gray>"));
             lore.add(MiniMessage.miniMessage().deserialize("<gray>Owner: " + ownerPlayer.getName() + "</gray>"));
             lore.add(MiniMessage.miniMessage().deserialize("<gray>Index: " + (i + 1) + "</gray>"));
@@ -128,7 +130,7 @@ public class ChunkInventoryManager implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         Component invTitle = event.getView().title();
         Component expectedTitle = MiniMessage.miniMessage().deserialize(
-                me.freezy.plugins.papermc.blazesmp.module.manager.L4M4.get("chunk.title")
+                L4M4.get("chunk.title")
         );
         if (!PlainTextComponentSerializer.plainText().serialize(invTitle)
                 .equals(PlainTextComponentSerializer.plainText().serialize(expectedTitle))) {
@@ -164,11 +166,18 @@ public class ChunkInventoryManager implements Listener {
             }
         } else {
             // Nutze den zentralen Nachrichtentext für Klicks
-            String msg = String.format(
-                    me.freezy.plugins.papermc.blazesmp.module.manager.L4M4.get("chunk.clicked"),
-                    displayName
-            );
-            player.sendMessage(MiniMessage.miniMessage().deserialize(msg));
+            String[] parts = displayName.substring(1, displayName.length() - 1).split(",");
+            int x = Integer.parseInt(parts[0].trim());
+            int y = Integer.parseInt(parts[1].trim());
+            Chunk chunk = Objects.requireNonNull(Bukkit.getWorld("world")).getChunkAt(x, y);
+            if (clan.getChunkOwnerMap().containsKey(chunk)) {
+                clan.getChunkOwnerMap().remove(chunk);
+                clan.save();
+                player.sendMessage(MiniMessage.miniMessage().deserialize(
+                        L4M4.get("chunk.unclaimed")
+                ));
+                openChunksMenu(player, chunkEntries, currentPage, totalPages, itemsPerPage, clan);
+            }
         }
     }
 

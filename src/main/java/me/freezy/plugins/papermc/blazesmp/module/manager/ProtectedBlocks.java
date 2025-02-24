@@ -7,12 +7,15 @@ import me.freezy.plugins.papermc.blazesmp.module.ProtectedBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -27,10 +30,10 @@ public class ProtectedBlocks {
     private static final Logger LOGGER = Logger.getLogger("ProtectedBlocks");
 
     // List of protected blocks
-    private final List<ProtectedBlock> blocks;
+    private final LinkedList<ProtectedBlock> blocks;
 
     public ProtectedBlocks() {
-        this.blocks = new ArrayList<>();
+        this.blocks = new LinkedList<>();
     }
 
     /**
@@ -123,5 +126,16 @@ public class ProtectedBlocks {
         String x;
         String y;
         String z;
+    }
+
+    public void addBlock(ProtectedBlock block) {
+        blocks.add(block);
+        this.save();
+    }
+
+    public boolean removeBlock(ProtectedBlock block) {
+        boolean bool = blocks.remove(block);
+        this.save();
+        return bool;
     }
 }
