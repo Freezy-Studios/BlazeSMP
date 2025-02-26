@@ -7,7 +7,7 @@ isEndOpen: false
 
 pressure-plate:
   world: "world"
-  x: 1
+  x: 0
   y: 68
   z: 0
 

@@ -31,7 +31,7 @@ public class PressurePlateListener implements Listener {
         FileConfiguration config = plugin.getConfig();
         pressurePlateLocation = new Location(
                 Bukkit.getWorld(config.getString("pressure-plate.world", "world")),
-                config.getDouble("pressure-plate.x", 1),
+                config.getDouble("pressure-plate.x", 0),
                 config.getDouble("pressure-plate.y", 68),
                 config.getDouble("pressure-plate.z", 0)
         );
@@ -74,8 +74,8 @@ public class PressurePlateListener implements Listener {
         } else {
             if (playerTasks.containsKey(event.getPlayer().getUniqueId())) {
                 if (event.getFrom().getBlockX() != event.getTo().getBlockX() ||
-                    event.getFrom().getBlockY() != event.getTo().getBlockY() ||
-                    event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
+                        event.getFrom().getBlockY() != event.getTo().getBlockY() ||
+                        event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
                     playerTasks.get(event.getPlayer().getUniqueId()).cancel();
                     playerTasks.remove(event.getPlayer().getUniqueId());
                 }
