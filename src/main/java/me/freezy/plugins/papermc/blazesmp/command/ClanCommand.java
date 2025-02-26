@@ -7,7 +7,6 @@ import me.freezy.plugins.papermc.blazesmp.module.manager.Clans;
 import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
-import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -19,6 +18,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
 
 public class ClanCommand extends SimpleCommand {
 
@@ -66,7 +67,8 @@ public class ClanCommand extends SimpleCommand {
                 }
                 String clanName = args[1];
                 String clanTag = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-                Component tagComponent = miniMessage().deserialize(clanTag);
+                String formattedMessage = clanTag.replaceAll("<click:[^>]+>(.*?)</click>", "$1");
+                Component tagComponent = miniMessage().deserialize(formattedMessage);
 
                 Clan newClan = new Clan(clanName, tagComponent, playerUUID);
                 clans.addClan(newClan);
@@ -678,6 +680,7 @@ public class ClanCommand extends SimpleCommand {
                 }
                 String whatToModify = args[1].toLowerCase();
                 String newValue = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+                String formattedMessage = newValue.replaceAll("<click:[^>]+>(.*?)</click>", "$1");
                 Clan currentClan = clans.getClanByMember(playerUUID);
                 if (currentClan == null) {
                     player.sendMessage(miniMessage().deserialize(L4M4.get("error.clan_not_found")));
@@ -692,11 +695,11 @@ public class ClanCommand extends SimpleCommand {
                         ));
                     }
                     case "tag" -> {
-                        Component newTag = miniMessage().deserialize(newValue);
+                        Component newTag = miniMessage().deserialize(formattedMessage);
                         currentClan.setTag(newTag);
                         currentClan.save();
                         player.sendMessage(miniMessage().deserialize(
-                                String.format("<green>Clan tag changed to %s.</green>", newValue)
+                                String.format("<green>Clan tag changed to %s.</green>", formattedMessage)
                         ));
                     }
                     default -> player.sendMessage(miniMessage().deserialize(L4M4.get("error.modify_invalid")));
@@ -778,7 +781,8 @@ public class ClanCommand extends SimpleCommand {
                                 .filter(s -> s.startsWith(args[1]))
                                 .collect(Collectors.toList());
                     }
-                    default -> {}
+                    default -> {
+                    }
                 }
             } else if (clans.isVice(playerUUID)) {
                 switch (args[0].toLowerCase()) {
@@ -809,7 +813,8 @@ public class ClanCommand extends SimpleCommand {
                         List<String> joins = getClanJoinRequests(args, playerUUID);
                         if (joins != null) return joins;
                     }
-                    default -> {}
+                    default -> {
+                    }
                 }
             } else {
                 switch (args[0].toLowerCase()) {
@@ -829,7 +834,8 @@ public class ClanCommand extends SimpleCommand {
                     case "create" -> {
                         return Collections.singletonList("<name>");
                     }
-                    default -> {}
+                    default -> {
+                    }
                 }
             }
         }
