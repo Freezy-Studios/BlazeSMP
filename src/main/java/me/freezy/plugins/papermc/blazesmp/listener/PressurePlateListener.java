@@ -2,6 +2,8 @@ package me.freezy.plugins.papermc.blazesmp.listener;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,7 +26,7 @@ public class PressurePlateListener implements Listener {
     private final Location pressurePlateLocation;
     private final Location spawnLocation;
     private final Map<UUID, BukkitRunnable> playerTasks = new HashMap<>();
-    private final String teleportMessage;
+    private final Component teleportMessage;
     private final long teleportDelay;
 
     public PressurePlateListener() {
@@ -41,7 +43,7 @@ public class PressurePlateListener implements Listener {
                 config.getDouble("spawn-location.y", 200),
                 config.getDouble("spawn-location.z", 0)
         );
-        teleportMessage = L4M4.get("pressureplate.teleport");
+        teleportMessage = MiniMessage.miniMessage().deserialize(L4M4.get("pressureplate.teleport"));
         teleportDelay = 5 * 20L;
     }
 
