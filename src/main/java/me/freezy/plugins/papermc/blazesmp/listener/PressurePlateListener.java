@@ -2,9 +2,12 @@ package me.freezy.plugins.papermc.blazesmp.listener;
 
 import me.freezy.plugins.papermc.blazesmp.BlazeSMP;
 import me.freezy.plugins.papermc.blazesmp.module.manager.L4M4;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,14 +26,14 @@ public class PressurePlateListener implements Listener {
     private final Location pressurePlateLocation;
     private final Location spawnLocation;
     private final Map<UUID, BukkitRunnable> playerTasks = new HashMap<>();
-    private final String teleportMessage;
+    private final Component teleportMessage;
     private final long teleportDelay;
 
     public PressurePlateListener() {
         FileConfiguration config = plugin.getConfig();
         pressurePlateLocation = new Location(
                 Bukkit.getWorld(config.getString("pressure-plate.world", "world")),
-                config.getDouble("pressure-plate.x", 1),
+                config.getDouble("pressure-plate.x", 0),
                 config.getDouble("pressure-plate.y", 68),
                 config.getDouble("pressure-plate.z", 0)
         );
@@ -40,9 +43,8 @@ public class PressurePlateListener implements Listener {
                 config.getDouble("spawn-location.y", 200),
                 config.getDouble("spawn-location.z", 0)
         );
-        // Verwende die zentrale Nachricht aus der messages.json
-        teleportMessage = L4M4.get("pressureplate.teleport");
-        teleportDelay = 5*20L; // Default to 5 seconds (100 ticks)
+        teleportMessage = MiniMessage.miniMessage().deserialize(L4M4.get("pressureplate.teleport"));
+        teleportDelay = 5 * 20L;
     }
 
     @EventHandler
@@ -59,11 +61,26 @@ public class PressurePlateListener implements Listener {
                 };
                 task.runTaskLater(plugin, teleportDelay);
                 playerTasks.put(event.getPlayer().getUniqueId(), task);
+
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (playerTasks.containsKey(event.getPlayer().getUniqueId())) {
+                            event.getPlayer().getWorld().spawnParticle(Particle.PORTAL, event.getPlayer().getLocation(), 30, 0.5, 0.5, 0.5, 0.1);
+                        } else {
+                            cancel();
+                        }
+                    }
+                }.runTaskTimer(plugin, 0, 10);
             }
         } else {
             if (playerTasks.containsKey(event.getPlayer().getUniqueId())) {
-                playerTasks.get(event.getPlayer().getUniqueId()).cancel();
-                playerTasks.remove(event.getPlayer().getUniqueId());
+                if (event.getFrom().getBlockX() != event.getTo().getBlockX() ||
+                        event.getFrom().getBlockY() != event.getTo().getBlockY() ||
+                        event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
+                    playerTasks.get(event.getPlayer().getUniqueId()).cancel();
+                    playerTasks.remove(event.getPlayer().getUniqueId());
+                }
             }
         }
     }

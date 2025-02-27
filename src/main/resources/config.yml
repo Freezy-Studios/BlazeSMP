@@ -3,3 +3,16 @@ player-prefix: '<color:dark_gray>[</color><gradient:#747e80:#828d8f><b>Player</b
 discord-report-webhook: ''
 discord-url: 'https://discord.gg/cww2YDt2bx'
 tab_update_interval: 5 #Seconds
+isEndOpen: false
+
+pressure-plate:
+  world: "world"
+  x: 0
+  y: 68
+  z: 0
+
+spawn-location:
+  world: "world"
+  x: 0
+  y: 200
+  z: 0

@@ -13,7 +13,10 @@ public class PlayerChatListener implements Listener {
     public void onChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
 
-        Component messageComponent = MiniMessage.miniMessage().deserialize(PlainTextComponentSerializer.plainText().serialize(event.message()));
+        String message = PlainTextComponentSerializer.plainText().serialize(event.message());
+        String formattedMessage = message.replaceAll("<click:[^>]+>(.*?)</click>", "$1");
+
+        Component messageComponent = MiniMessage.miniMessage().deserialize(formattedMessage);
 
         Component chatComponent = Component.empty()
                 .append(player.playerListName())
