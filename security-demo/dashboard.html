@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Vulnerable Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="warning-banner">
+            ⚠️ EDUCATIONAL DEMO - INTENTIONALLY VULNERABLE ⚠️
+        </div>
+        
+        <div class="dashboard">
+            <header class="dashboard-header">
+                <h1>Admin Dashboard</h1>
+                <div class="user-info">
+                    <span>Welcome, <span id="currentUser">Unknown</span></span>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </header>
+            
+            <div class="dashboard-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Users</h3>
+                        <p class="stat-number">1,234</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Sessions</h3>
+                        <p class="stat-number">56</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Security Alerts</h3>
+                        <p class="stat-number">⚠️ MANY</p>
+                    </div>
+                </div>
+                
+                <div class="admin-panel">
+                    <h3>Admin Actions</h3>
+                    <div class="action-section">
+                        <h4>Execute Command (XSS Vulnerable):</h4>
+                        <input type="text" id="commandInput" placeholder="Enter command...">
+                        <button onclick="executeCommand()">Execute</button>
+                        <div id="commandOutput"></div>
+                    </div>
+                    
+                    <div class="action-section">
+                        <h4>User Search (SQL Injection Vulnerable Simulation):</h4>
+                        <input type="text" id="searchInput" placeholder="Search users...">
+                        <button onclick="searchUsers()">Search</button>
+                        <div id="searchResults"></div>
+                    </div>
+                    
+                    <div class="action-section">
+                        <h4>System Information:</h4>
+                        <div id="systemInfo">
+                            <p>Server: vulnerable-demo.local</p>
+                            <p>Database: mysql://admin:password123@localhost/users</p>
+                            <p>Session ID: <span id="sessionId"></span></p>
+                            <p>Stored Credentials: <span id="storedCreds"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="dashboard.js"></script>
+</body>
+</html>
