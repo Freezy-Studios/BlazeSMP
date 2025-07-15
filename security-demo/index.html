@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vulnerable Login Demo - Educational Purpose</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="warning-banner">
+            ⚠️ EDUCATIONAL DEMO - INTENTIONALLY VULNERABLE ⚠️
+            <p>This website contains deliberate security vulnerabilities for educational purposes only.</p>
+        </div>
+        
+        <div class="login-form">
+            <h2>Admin Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            
+            <div id="loginMessage"></div>
+            
+            <div class="demo-credentials">
+                <h3>Demo Credentials:</h3>
+                <p>Username: admin</p>
+                <p>Password: password123</p>
+                <p><em>Try different combinations to see vulnerabilities in action!</em></p>
+            </div>
+        </div>
+        
+        <div class="vulnerability-info">
+            <h3>Security Vulnerabilities Demonstrated:</h3>
+            <ul>
+                <li>Plain text password storage in localStorage</li>
+                <li>No protection against brute force attacks</li>
+                <li>XSS vulnerability through innerHTML</li>
+                <li>Insecure credential transmission</li>
+                <li>Client-side authentication logic</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="login.js"></script>
+</body>
+</html>
